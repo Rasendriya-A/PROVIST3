@@ -5,6 +5,8 @@ import 'package:provis_tugas_3/screens/auth/register_page.dart';
 import 'package:provis_tugas_3/screens/auth/forget_pass_page.dart';
 import 'package:provis_tugas_3/screens/auth/change_password_page.dart';
 import 'package:provis_tugas_3/screens/profile/profile_page.dart';
+import 'package:provis_tugas_3/screens/product/browse.dart';
+import 'package:provis_tugas_3/screens/product/detail.dart';
 
 class AppRoutes {
   static const String home = '/home';
@@ -13,6 +15,8 @@ class AppRoutes {
   static const String forgetpass = '/forgetpass';
   static const String changepassword = '/changepassword';
   static const String profile = '/profile';
+  static const String browse = '/browse';
+  static const String detail = '/detail';
 
   static Map<String, WidgetBuilder> routes = {
   home: (context) => const HomePage(),
@@ -24,5 +28,7 @@ class AppRoutes {
       return ChangePasswordPage(email: email);
     },
   profile: (context) => const ProfilePage(),
+  browse: (context) => const Browse(),
+  detail: (context) => const Detail(),
   };
 }

@@ -7,6 +7,8 @@ import 'package:provis_tugas_3/widgets/recommended_item.dart';
 import 'package:provis_tugas_3/widgets/category_item.dart';
 import 'package:provis_tugas_3/widgets/horizontal_product_list.dart';
 import 'package:provis_tugas_3/screens/profile/profile_page.dart';
+import 'package:provis_tugas_3/screens/product/browse.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -22,13 +24,21 @@ class HomePage extends StatelessWidget {
           children: [
             // Header
             Container(
-              color: AppColors.primary,  // Ganti dengan warna yang diinginkan
+              color: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.search, color: AppColors.textLight),  // Ganti dengan warna sesuai kebutuhan
-                  Icon(Icons.shopping_cart, color: AppColors.textLight),  // Ganti dengan warna sesuai kebutuhan
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Browse()),
+                      );
+                    },
+                    child: Icon(Icons.search, color: AppColors.textLight),
+                  ),
+                  Icon(Icons.shopping_cart, color: AppColors.textLight),
                 ],
               ),
             ),
