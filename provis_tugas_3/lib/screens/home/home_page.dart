@@ -6,7 +6,8 @@ import 'package:provis_tugas_3/utils/constants.dart';
 import 'package:provis_tugas_3/widgets/recommended_item.dart';
 import 'package:provis_tugas_3/widgets/category_item.dart';
 import 'package:provis_tugas_3/widgets/horizontal_product_list.dart';
-import 'package:provis_tugas_3/screens/profile/profile_page.dart';
+// import 'package:provis_tugas_3/screens/profile/profile_page.dart'; // hubungkan ke alur ketika sudah beres smw
+import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
 
 
@@ -180,7 +181,7 @@ class HomePage extends StatelessWidget {
           if (index == 2) { // Jika tombol Profile ditekan (index 2)
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
             );
           }
         },

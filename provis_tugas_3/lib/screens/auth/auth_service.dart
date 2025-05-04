@@ -1,7 +1,7 @@
 // lib/screens/auth/auth_service.dart
 
 import 'package:provis_tugas_3/models/user_model.dart';
-import 'package:provis_tugas_3/services/mock_user_data.dart';
+import 'package:provis_tugas_3/screens/profile/services/mock_user_data.dart';
 
 class AuthService {
   // Fungsi login untuk mencocokkan email dan password dengan data mock
