@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
 import 'package:provis_tugas_3/models/user_model.dart';
-import 'package:provis_tugas_3/services/mock_user_data.dart';
+import 'package:provis_tugas_3/screens/profile/services/mock_user_data.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final String email; // Menambahkan email untuk mengidentifikasi pengguna
