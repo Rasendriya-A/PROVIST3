@@ -90,7 +90,6 @@ class _RentalCartPageState extends State<RentalCartPage> {
   List<RentalItem> get _selectedItems => _cartService.getSelectedItems(_items);
 
   // Navigate to checkout and pass relevant data
-  // Then modify your _navigateToCheckout method to use the correct references:
   void _navigateToCheckout() {
     if (_selectedItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,29 +111,30 @@ class _RentalCartPageState extends State<RentalCartPage> {
       return;
     }
 
+    // Pass all necessary data as a Map instead of custom object
+    final checkoutData = {
+      'items': _selectedItems
+          .map(
+            (item) => {
+              'productName': item.name,
+              'price': item.price,
+              'quantity': item.quantity,
+              'imageUrl': item.imageUrl,
+            },
+          )
+          .toList(),
+      'startDate': startDate!,
+      'endDate': endDate!,
+      'paymentMethod': 'Transfer', // Default payment method
+      'subtotal': _subtotal,
+      'serviceFee': _subtotal * 0.007, // Example service fee calculation
+      'total': _subtotal * 1.007, // Subtotal + service fee
+    };
+
     Navigator.pushNamed(
       context,
       AppRoutes.checkout,
-      // arguments: CheckoutData(
-      //   items:
-      //       _selectedItems
-      //           .map(
-      //             (item) => CheckoutItem(
-      //               productName:
-      //                   item.name, // Make sure your RentalItem has a 'name' property
-      //               price: item.price, // and 'price' property
-      //               quantity: item.quantity,
-      //               imageUrl: item.imageUrl,
-      //             ),
-      //           )
-      //           .toList(),
-      //   startDate: startDate!,
-      //   endDate: endDate!,
-      //   paymentMethod: 'Transfer', // Default payment method
-      //   subtotal: _subtotal,
-      //   serviceFee: _subtotal * 0.007, // Example service fee calculation
-      //   total: _subtotal * 1.007, // Subtotal + service fee
-      // ),
+      arguments: checkoutData,
     );
   }
 
