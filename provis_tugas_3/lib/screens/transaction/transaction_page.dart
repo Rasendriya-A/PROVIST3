@@ -54,6 +54,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       appBar: AppBar(
         title: Text('Transaksi'),
         backgroundColor: Color(0xFF3A5F3A),
+        foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(icon: Icon(Icons.search), onPressed: () {}),

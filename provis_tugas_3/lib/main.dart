@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provis_tugas_3/routes/app_routes.dart';
+import 'package:provis_tugas_3/screens/cart/cart_page.dart';
+import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
 import 'screens/home/home_page.dart';
 import 'screens/profile/pf_user/profile_screen.dart';
 import 'screens/auth/login_page.dart';
@@ -94,16 +96,21 @@ class NavigationScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
-                    // const SizedBox(height: 16),
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(builder: (context) => const TransaksiScreen()),
-                    //     );
-                    //   },
-                    //   child: const Text('Transaksi', style: TextStyle(fontSize: 16)),
-                    // ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TransactionsScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Transaksi',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
@@ -119,16 +126,21 @@ class NavigationScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
-                    // const SizedBox(height: 16),
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(builder: (context) => const KeranjangScreen()),
-                    //     );
-                    //   },
-                    //   child: const Text('Keranjang', style: TextStyle(fontSize: 16)),
-                    // ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RentalCartPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Keranjang',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
                   ],
                 ),
               ),
