@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/models/product_item_data.dart';
+import 'package:provis_tugas_3/screens/transaction/services/transaction_service.dart';
+import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
 import 'package:provis_tugas_3/utils/constants.dart';
@@ -9,7 +11,7 @@ import 'package:provis_tugas_3/widgets/horizontal_product_list.dart';
 // import 'package:provis_tugas_3/screens/profile/profile_page.dart'; // hubungkan ke alur ketika sudah beres smw
 import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
-
+import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -39,7 +41,20 @@ class HomePage extends StatelessWidget {
                     },
                     child: Icon(Icons.search, color: AppColors.textLight),
                   ),
-                  Icon(Icons.shopping_cart, color: AppColors.textLight),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RentalCartPage(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: AppColors.textLight,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -69,10 +84,22 @@ class HomePage extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: const [
-                  CategoryItem(label: 'Tenda', imageUrl: 'assets/images/category/tenda.jpg'),
-                  CategoryItem(label: 'Sleeping Bag', imageUrl: 'assets/images/category/sleeping_bag.jpg'),
-                  CategoryItem(label: 'Paket', imageUrl: 'assets/images/category/paket.jpg'),
-                  CategoryItem(label: 'Tas', imageUrl: 'assets/images/category/tas.jpg'),
+                  CategoryItem(
+                    label: 'Tenda',
+                    imageUrl: 'assets/images/category/tenda.jpg',
+                  ),
+                  CategoryItem(
+                    label: 'Sleeping Bag',
+                    imageUrl: 'assets/images/category/sleeping_bag.jpg',
+                  ),
+                  CategoryItem(
+                    label: 'Paket',
+                    imageUrl: 'assets/images/category/paket.jpg',
+                  ),
+                  CategoryItem(
+                    label: 'Tas',
+                    imageUrl: 'assets/images/category/tas.jpg',
+                  ),
                 ],
               ),
             ),
@@ -89,8 +116,8 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Paling Banyak Disewa!', 
-                    style: AppTextStyles.headerLight
+                    'Paling Banyak Disewa!',
+                    style: AppTextStyles.headerLight,
                   ),
                   const SizedBox(height: 12),
                   HorizontalProductList(
@@ -151,21 +178,20 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text(
-                    'Rekomendasi', 
-                    style: AppTextStyles.headerLight,
-                  ),
+                  Text('Rekomendasi', style: AppTextStyles.headerLight),
                   SizedBox(height: 12),
                   RecommendedItem(
                     imageUrl: 'assets/images/items/tenda_4.jpg',
                     title: 'Tenda',
-                    description: 'Cocok untuk pendakian, camping keluarga, atau glamping ringan.',
+                    description:
+                        'Cocok untuk pendakian, camping keluarga, atau glamping ringan.',
                     price: 'Rp100.000 per hari',
                   ),
                   RecommendedItem(
                     imageUrl: 'assets/images/items/tas_2.jpg',
                     title: 'Tas',
-                    description: 'Tas outdoor multifungsi untuk membawa perlengkapan kemah Anda.',
+                    description:
+                        'Tas outdoor multifungsi untuk membawa perlengkapan kemah Anda.',
                     price: 'Rp200.000 per hari',
                   ),
                 ],
@@ -178,7 +204,16 @@ class HomePage extends StatelessWidget {
         selectedItemColor: AppColors.primary,
         onTap: (index) {
           // Aksi navigasi berdasarkan index yang dipilih
-          if (index == 2) { // Jika tombol Profile ditekan (index 2)
+          if (index == 1) {
+            // Jika tombol Transaction ditekan (index 1)
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TransactionsScreen(),
+              ),
+            );
+          } else if (index == 2) {
+            // Jika tombol Profile ditekan (index 2)
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -187,7 +222,10 @@ class HomePage extends StatelessWidget {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Transaksi'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt_long),
+            label: 'Transaksi',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
@@ -197,11 +235,7 @@ class HomePage extends StatelessWidget {
   static Widget _carouselImage(String imagePath) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
-      child: Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-        width: double.infinity,
-      ),
+      child: Image.asset(imagePath, fit: BoxFit.cover, width: double.infinity),
     );
   }
 }

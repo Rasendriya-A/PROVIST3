@@ -30,7 +30,7 @@ class RecommendedItem extends StatelessWidget {
           // Gambar
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
+            child: Image.asset(
               imageUrl,
               width: 80,
               height: 80,

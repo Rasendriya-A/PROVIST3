@@ -7,6 +7,9 @@ import 'package:provis_tugas_3/screens/auth/change_password_page.dart';
 import 'package:provis_tugas_3/screens/profile/profile_page.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
 import 'package:provis_tugas_3/screens/product/detail.dart';
+import 'package:provis_tugas_3/screens/cart/cart_page.dart';
+import 'package:provis_tugas_3/screens/checkout/checkout_page.dart';
+import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
 
 class AppRoutes {
   static const String home = '/home';
@@ -17,18 +20,24 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String browse = '/browse';
   static const String detail = '/detail';
+  static const String cart = '/cart';
+  static const String checkout = '/checkout';
+  static const String transaction = '/transaction';
 
   static Map<String, WidgetBuilder> routes = {
-  home: (context) => const HomePage(),
-  login: (context) => const LoginPage(),
-  register: (context) => const RegisterPage(),
-  forgetpass: (context) => const ForgetPassPage(),
-  changepassword: (context) {
+    home: (context) => const HomePage(),
+    login: (context) => const LoginPage(),
+    register: (context) => const RegisterPage(),
+    forgetpass: (context) => const ForgetPassPage(),
+    changepassword: (context) {
       final email = ModalRoute.of(context)?.settings.arguments as String;
       return ChangePasswordPage(email: email);
     },
-  profile: (context) => const ProfilePage(),
-  browse: (context) => const Browse(),
-  detail: (context) => const Detail(),
+    profile: (context) => const ProfilePage(),
+    browse: (context) => const Browse(),
+    detail: (context) => const Detail(),
+    cart: (context) => const RentalCartPage(),
+    checkout: (context) => const CheckoutScreen(),
+    transaction: (context) => const TransactionsScreen(),
   };
 }

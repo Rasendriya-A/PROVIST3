@@ -9,10 +9,18 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   // Controllers for text fields
-  final TextEditingController _nameController = TextEditingController(text: 'Dudul Sintesa');
-  final TextEditingController _phoneController = TextEditingController(text: '+62-812-9201-8989');
-  final TextEditingController _emailController = TextEditingController(text: 'dudulsintesaarunikarsa@gmail.com');
-  final TextEditingController _addressController = TextEditingController(text: 'Jl. Gokil No 3, Bandung');
+  final TextEditingController _nameController = TextEditingController(
+    text: 'Dudul Sintesa',
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: '+62-812-9201-8989',
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: 'dudulsintesaarunikarsa@gmail.com',
+  );
+  final TextEditingController _addressController = TextEditingController(
+    text: 'Jl. Gokil No 3, Bandung',
+  );
 
   @override
   void dispose() {
@@ -54,10 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               const Text(
                 'Edit Profil',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Center(
@@ -67,7 +72,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       radius: 40,
                       backgroundColor: Colors.grey,
                       // Use NetworkImage or AssetImage for actual implementation
-                      backgroundImage: AssetImage('assets/profile_image.jpg'),
+                      backgroundImage: AssetImage(
+                        'assets/images/profile_image.jpg',
+                      ),
                     ),
                     TextButton(
                       onPressed: () {},
@@ -129,7 +136,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4B6543),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 12,
+                    ),
                   ),
                   child: const Text('Simpan'),
                 ),
@@ -141,3 +151,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
+

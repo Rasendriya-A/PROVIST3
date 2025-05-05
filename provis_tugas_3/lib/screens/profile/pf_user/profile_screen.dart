@@ -31,10 +31,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const Text(
               'Profile Anda',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             Center(
@@ -44,15 +41,14 @@ class ProfileScreen extends StatelessWidget {
                     radius: 40,
                     backgroundColor: Colors.grey,
                     // Use NetworkImage or AssetImage for actual implementation
-                    backgroundImage: AssetImage('assets/images/items/profile_image.jpg'),
+                    backgroundImage: AssetImage(
+                      'assets/images/items/profile_image.jpg',
+                    ),
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'Dudul Sintesa',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -72,7 +68,9 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen(),
+                    ),
                   );
                 },
               ),
@@ -93,20 +91,15 @@ class ProfileScreen extends StatelessWidget {
           }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt),
             label: 'Transaksi',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 }
+
