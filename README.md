@@ -1,4 +1,4 @@
-Tugas 3 Provis: Implementasi UI
+![image](https://github.com/user-attachments/assets/275df2db-79ba-4f9f-a42d-90be05e29062)Tugas 3 Provis: Implementasi UI
 1. Kelompok 6
 Anggota:
 - Yattaqi Ahmad Faza (2311216)
@@ -71,7 +71,12 @@ K. Halaman Autentikasi
 ![image](https://github.com/user-attachments/assets/d6a5f362-6f44-431c-9122-c8caf5a38ff2)
 ![image](https://github.com/user-attachments/assets/86b85c14-91bd-4683-86bf-59c99cb42690)
 ![image](https://github.com/user-attachments/assets/12b2ac7f-e622-4661-9f52-ce918fcec03b)
+![image](https://github.com/user-attachments/assets/8b548bad-1be0-43ee-99dd-c3cd5be3b593)
 - Halaman Login, Daftar Akun, dan Reset Password.
+- Halaman Login juga sudah berjalan dapat dicoba dengan akun dummy:
+  username: rasen@example.com password: 123456
+  
+  
 
 
 
