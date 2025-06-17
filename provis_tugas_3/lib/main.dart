@@ -3,14 +3,21 @@ import 'package:provider/provider.dart';
 import 'package:provis_tugas_3/routes/app_routes.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Add this import
+
+// Import screens
 import 'screens/home/home_page.dart';
 import 'screens/profile/pf_user/profile_screen.dart';
 import 'screens/auth/login_page.dart';
 import 'screens/transaction/services/transaction_service.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Add this import
+
+// Import package Firebase Core dan file konfigurasi
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('id_ID'); // Use 'id_ID' for Indonesian locale
   runApp(const MyApp());
 }

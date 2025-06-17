@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
 import 'package:provis_tugas_3/screens/auth/auth_service.dart'; // Impor AuthService
@@ -16,9 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Instance dari AuthService
-  final AuthService _authService = AuthService();
-
   // Fungsi untuk menangani login
   void _login() async {
     String email = _emailController.text;
@@ -32,21 +30,39 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    // Instance dari AuthService
     // Menunggu proses login dan memeriksa hasilnya
-    UserModel? user = await _authService.login(email, password);
+    final AuthService _authService = AuthService();
+    User? user = await _authService.login(email, password);
 
     if (user != null) {
-      // Jika login berhasil, navigasi ke halaman Home
-      Navigator.pushReplacementNamed(context, '/home');  // Ganti '/home' dengan route yang sesuai
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login Berhasil!")),
-      );
+      // Jika login berhasil
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Login Berhasil!")));
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
       // Jika login gagal
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email atau password salah")),
+        const SnackBar(content: Text("Email atau password salah.")),
       );
     }
+
+    // if (user != null) {
+    //   // Jika login berhasil, navigasi ke halaman Home
+    //   Navigator.pushReplacementNamed(
+    //     context,
+    //     '/home',
+    //   ); // Ganti '/home' dengan route yang sesuai
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(const SnackBar(content: Text("Login Berhasil!")));
+    // } else {
+    //   // Jika login gagal
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text("Email atau password salah")),
+    //   );
+    // }
   }
 
   @override
@@ -61,17 +77,11 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 32),
 
               // Judul Aplikasi
-              Text(
-                "YukKemah!",
-                style: AppTextStyles.appTitle,
-              ),
+              Text("YukKemah!", style: AppTextStyles.appTitle),
               const SizedBox(height: 32),
 
               // Judul Login
-              Text(
-                "Masuk",
-                style: AppTextStyles.header,
-              ),
+              Text("Masuk", style: AppTextStyles.header),
               const SizedBox(height: 24),
 
               // Email
@@ -90,8 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     alignment: Alignment.centerLeft,
                     child: TextField(
-                      controller: _emailController,  // Controller untuk email
-                      decoration: const InputDecoration.collapsed(hintText: "Email"),
+                      controller: _emailController, // Controller untuk email
+                      decoration: const InputDecoration.collapsed(
+                        hintText: "Email",
+                      ),
                     ),
                   ),
                 ],
@@ -115,9 +127,12 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     alignment: Alignment.centerLeft,
                     child: TextField(
-                      controller: _passwordController,  // Controller untuk password
+                      controller:
+                          _passwordController, // Controller untuk password
                       obscureText: true,
-                      decoration: const InputDecoration.collapsed(hintText: "Password"),
+                      decoration: const InputDecoration.collapsed(
+                        hintText: "Password",
+                      ),
                     ),
                   ),
                 ],
@@ -160,7 +175,10 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 48,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
