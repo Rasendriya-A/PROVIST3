@@ -35,7 +35,7 @@ class AppRoutes {
     },
     profile: (context) => const ProfilePage(),
     browse: (context) => const Browse(),
-    detail: (context) => const Detail(),
+    // detail: (context) => const Detail(),
     cart: (context) => const RentalCartPage(),
     checkout: (context) => const CheckoutScreen(),
     transaction: (context) => const TransactionsScreen(),

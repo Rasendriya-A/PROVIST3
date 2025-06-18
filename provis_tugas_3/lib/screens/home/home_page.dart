@@ -12,6 +12,7 @@ import 'package:provis_tugas_3/widgets/horizontal_product_list.dart';
 import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
+import 'package:provis_tugas_3/services/product_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -120,24 +121,27 @@ class HomePage extends StatelessWidget {
                     style: AppTextStyles.headerLight,
                   ),
                   const SizedBox(height: 12),
-                  HorizontalProductList(
-                    products: [
-                      ProductItemData(
-                        name: 'Tenda 1',
-                        price: 'Rp50.000 per hari',
-                        imageUrl: 'assets/images/items/tenda_1.jpg',
-                      ),
-                      ProductItemData(
-                        name: 'Tenda 2',
-                        price: 'Rp85.000 per hari',
-                        imageUrl: 'assets/images/items/tenda_2.jpg',
-                      ),
-                      ProductItemData(
-                        name: 'Tenda 3',
-                        price: 'Rp60.000 per hari',
-                        imageUrl: 'assets/images/items/tenda_3.jpg',
-                      ),
-                    ],
+                  FutureBuilder<List<ProductItemData>>(
+                    future:
+                        ProductService()
+                            .getProducts(), // Panggil fungsi untuk ambil data
+                    builder: (context, snapshot) {
+                      // Saat data sedang dimuat, tampilkan loading spinner
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      // Jika terjadi error
+                      if (snapshot.hasError) {
+                        return const Center(child: Text("Gagal memuat produk"));
+                      }
+                      // Jika data berhasil dimuat dan tidak kosong
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                        // Gunakan data dari snapshot untuk ditampilkan
+                        return HorizontalProductList(products: snapshot.data!);
+                      }
+                      // Jika tidak ada produk
+                      return const Center(child: Text("Belum ada produk."));
+                    },
                   ),
                 ],
               ),
@@ -147,24 +151,27 @@ class HomePage extends StatelessWidget {
             // Alat-Alat Terbaru
             Text('Alat-Alat Terbaru', style: AppTextStyles.header),
             const SizedBox(height: 12),
-            HorizontalProductList(
-              products: [
-                ProductItemData(
-                  name: 'Kitchenware',
-                  price: 'Rp30.000 per hari',
-                  imageUrl: 'assets/images/items/kitchenware_1.jpg',
-                ),
-                ProductItemData(
-                  name: 'Sepatu',
-                  price: 'Rp40.000 per hari',
-                  imageUrl: 'assets/images/items/sepatu_1.jpg',
-                ),
-                ProductItemData(
-                  name: 'Tas',
-                  price: 'Rp20.000 per hari',
-                  imageUrl: 'assets/images/items/tas_1.jpg',
-                ),
-              ],
+            FutureBuilder<List<ProductItemData>>(
+              future:
+                  ProductService()
+                      .getProducts(), // Panggil fungsi untuk ambil data
+              builder: (context, snapshot) {
+                // Saat data sedang dimuat, tampilkan loading spinner
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                // Jika terjadi error
+                if (snapshot.hasError) {
+                  return const Center(child: Text("Gagal memuat produk"));
+                }
+                // Jika data berhasil dimuat dan tidak kosong
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  // Gunakan data dari snapshot untuk ditampilkan
+                  return HorizontalProductList(products: snapshot.data!);
+                }
+                // Jika tidak ada produk
+                return const Center(child: Text("Belum ada produk."));
+              },
             ),
             const SizedBox(height: 24),
 
@@ -232,10 +239,19 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  static Widget _carouselImage(String imagePath) {
+  static Widget _carouselImage(String imageUrl) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
-      child: Image.asset(imagePath, fit: BoxFit.cover, width: double.infinity),
+      // Ganti menjadi Image.network
+      child: Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        // Tambahkan ini untuk menangani jika gambar gagal dimuat
+        errorBuilder: (context, error, stackTrace) {
+          return Container(color: Colors.grey, child: const Icon(Icons.error));
+        },
+      ),
     );
   }
 }

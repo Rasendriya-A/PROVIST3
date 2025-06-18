@@ -26,15 +26,26 @@ class ProductItem extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(imageUrl),
+                // Ganti menjadi NetworkImage
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             ),
           ),
           const SizedBox(height: 4),
-          Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-          Text(price, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.red)),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            price,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.red,
+            ),
+          ),
         ],
       ),
     );

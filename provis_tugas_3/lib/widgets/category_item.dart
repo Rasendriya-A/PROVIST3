@@ -4,11 +4,7 @@ class CategoryItem extends StatelessWidget {
   final String label;
   final String imageUrl;
 
-  const CategoryItem({
-    required this.label,
-    required this.imageUrl,
-    super.key,
-  });
+  const CategoryItem({required this.label, required this.imageUrl, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +15,8 @@ class CategoryItem extends StatelessWidget {
           CircleAvatar(
             radius: 28,
             backgroundColor: Colors.brown.shade100,
-            backgroundImage: AssetImage(imageUrl),
+            // Ganti menjadi NetworkImage
+            backgroundImage: NetworkImage(imageUrl),
           ),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(fontSize: 12)),

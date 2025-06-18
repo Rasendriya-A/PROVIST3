@@ -4,83 +4,81 @@ import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
 import 'package:provis_tugas_3/utils/constants.dart';
 import 'package:provis_tugas_3/screens/product/detail.dart'; // Import Detail class
+import 'package:provis_tugas_3/services/product_service.dart';
 
 void _showSortBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header with close button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Urutkan', style: AppTextStyles.headerDark),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (context) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header with close button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Urutkan', style: AppTextStyles.headerDark),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
-              
-              // Sort options
-              _buildSortOption('Paling Sesuai', isSelected: true),
-              _buildSortOption('Ulasan', isSelected: false),
-              _buildSortOption('Terbaru', isSelected: false),
-              _buildSortOption('Harga', isSelected: false),
-              _buildSortOption('Kondisi', isSelected: false),
-              
-              const SizedBox(height: 16), // Bottom padding
-            ],
-          ),
-        );
-      },
-    );
-  }
-  
-  Widget _buildSortOption(String title, {required bool isSelected}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title, 
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
             ),
-          ),
-          isSelected 
+
+            // Sort options
+            _buildSortOption('Paling Sesuai', isSelected: true),
+            _buildSortOption('Ulasan', isSelected: false),
+            _buildSortOption('Terbaru', isSelected: false),
+            _buildSortOption('Harga', isSelected: false),
+            _buildSortOption('Kondisi', isSelected: false),
+
+            const SizedBox(height: 16), // Bottom padding
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildSortOption(String title, {required bool isSelected}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        isSelected
             ? Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check, color: Colors.white, size: 16),
-              )
-            : Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  shape: BoxShape.circle,
-                ),
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
               ),
-        ],
-      ),
-    );
-  }
+              child: const Icon(Icons.check, color: Colors.white, size: 16),
+            )
+            : Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                shape: BoxShape.circle,
+              ),
+            ),
+      ],
+    ),
+  );
+}
 
 // Added filter functionality
 void _showFilterBottomSheet(BuildContext context) {
@@ -109,7 +107,10 @@ void _showFilterBottomSheet(BuildContext context) {
                 children: [
                   // Header with close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -121,13 +122,19 @@ void _showFilterBottomSheet(BuildContext context) {
                       ],
                     ),
                   ),
-                  
+
                   // Category section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: const Text('Kategori', style: TextStyle(fontWeight: FontWeight.w500)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: const Text(
+                      'Kategori',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  
+
                   // Category options
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -139,13 +146,19 @@ void _showFilterBottomSheet(BuildContext context) {
                           });
                         }),
                         const SizedBox(width: 8),
-                        _buildFilterOption('Sleeping Bag', sleepingBagSelected, (value) {
-                          setState(() {
-                            sleepingBagSelected = value;
-                          });
-                        }),
+                        _buildFilterOption(
+                          'Sleeping Bag',
+                          sleepingBagSelected,
+                          (value) {
+                            setState(() {
+                              sleepingBagSelected = value;
+                            });
+                          },
+                        ),
                         const SizedBox(width: 8),
-                        _buildFilterOption('Tas Punggung', tasSelected, (value) {
+                        _buildFilterOption('Tas Punggung', tasSelected, (
+                          value,
+                        ) {
                           setState(() {
                             tasSelected = value;
                           });
@@ -153,13 +166,19 @@ void _showFilterBottomSheet(BuildContext context) {
                       ],
                     ),
                   ),
-                  
+
                   // Condition section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: const Text('Kondisi', style: TextStyle(fontWeight: FontWeight.w500)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: const Text(
+                      'Kondisi',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  
+
                   // Condition options
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -171,7 +190,9 @@ void _showFilterBottomSheet(BuildContext context) {
                           });
                         }),
                         const SizedBox(width: 8),
-                        _buildFilterOption('Layak Pakai', layakPakaiSelected, (value) {
+                        _buildFilterOption('Layak Pakai', layakPakaiSelected, (
+                          value,
+                        ) {
                           setState(() {
                             layakPakaiSelected = value;
                           });
@@ -185,13 +206,19 @@ void _showFilterBottomSheet(BuildContext context) {
                       ],
                     ),
                   ),
-                  
+
                   // Price range section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: const Text('Harga', style: TextStyle(fontWeight: FontWeight.w500)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: const Text(
+                      'Harga',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  
+
                   // Price range options
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -204,9 +231,7 @@ void _showFilterBottomSheet(BuildContext context) {
                               border: Border.all(color: Colors.grey.shade300),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Center(
-                              child: Text('Terendah'),
-                            ),
+                            child: const Center(child: Text('Terendah')),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -217,15 +242,13 @@ void _showFilterBottomSheet(BuildContext context) {
                               border: Border.all(color: Colors.grey.shade300),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Center(
-                              child: Text('Tertinggi'),
-                            ),
+                            child: const Center(child: Text('Tertinggi')),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Apply button
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -256,13 +279,17 @@ void _showFilterBottomSheet(BuildContext context) {
               ),
             ),
           );
-        }
+        },
       );
     },
   );
 }
 
-Widget _buildFilterOption(String title, bool isSelected, Function(bool) onChanged) {
+Widget _buildFilterOption(
+  String title,
+  bool isSelected,
+  Function(bool) onChanged,
+) {
   return InkWell(
     onTap: () {
       onChanged(!isSelected);
@@ -272,7 +299,9 @@ Widget _buildFilterOption(String title, bool isSelected, Function(bool) onChange
       decoration: BoxDecoration(
         color: isSelected ? AppColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isSelected ? AppColors.primary : Colors.grey.shade300),
+        border: Border.all(
+          color: isSelected ? AppColors.primary : Colors.grey.shade300,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -353,7 +382,7 @@ class Browse extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Sort Options
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -381,79 +410,44 @@ class Browse extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Product Grid
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                children: [
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp50.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_1.jpg'
-                    ),
-                    4.7,
-                    1
+            child: FutureBuilder<List<ProductItemData>>(
+              future: ProductService().getProducts(), // Memanggil service
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(child: Text("Gagal memuat produk."));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text("Tidak ada produk tersedia."),
+                  );
+                }
+
+                final products = snapshot.data!;
+
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return _buildProductCard(context, product);
+                    },
                   ),
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp85.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_2.jpg'
-                    ),
-                    4.6,
-                    2
-                  ),
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp60.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_3.jpg'
-                    ),
-                    4.9,
-                    3
-                  ),
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp100.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_4.jpg'
-                    ),
-                    4.7,
-                    4
-                  ),
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp200.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_5.jpg'
-                    ),
-                    4.5,
-                    5
-                  ),
-                  _buildProductFromData(
-                    context,
-                    ProductItemData(
-                      name: 'Tenda',
-                      price: 'Rp120.000 per hari',
-                      imageUrl: 'assets/images/items/tenda_6.jpg'
-                    ),
-                    4.6,
-                    6
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -467,7 +461,9 @@ class Browse extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected ? AppColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? AppColors.primary : Colors.grey.shade300),
+        border: Border.all(
+          color: isSelected ? AppColors.primary : Colors.grey.shade300,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -490,50 +486,62 @@ class Browse extends StatelessWidget {
     );
   }
 
-  Widget _buildProductFromData(BuildContext context, ProductItemData product, double rating, int productId) {
+  // Ganti fungsi _buildProductFromData dengan ini
+
+  Widget _buildProductCard(BuildContext context, ProductItemData product) {
     return InkWell(
       onTap: () {
-        // Navigate to existing Detail page with product data
+        // 3. PERBAIKI NAVIGASI: Kirim productId yang benar ke halaman Detail
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Detail(
-            ),
+            builder: (context) => Detail(productId: product.id),
           ),
         );
       },
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius / 2),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Product Image
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppConstants.defaultBorderRadius / 2)
-              ),
-              child: Image.asset(
-                product.imageUrl,
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
+                ),
+                // Gunakan imageUrl dari objek produk
+                child: Image.network(
+                  product.imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) => const Center(
+                        child: Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
+                      ),
+                ),
               ),
             ),
-            
+
             // Product Details
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Gunakan nama dari objek produk
                   Text(
                     product.name,
                     style: AppTextStyles.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
+                  // Gunakan harga dari objek produk
                   Text(
                     product.price,
                     style: TextStyle(
@@ -544,13 +552,10 @@ class Browse extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        rating.toString(),
-                        style: AppTextStyles.small,
-                      ),
+                    children: const [
+                      Icon(Icons.star, color: Colors.amber, size: 18),
+                      SizedBox(width: 4),
+                      Text("4.7", style: AppTextStyles.small),
                     ],
                   ),
                 ],

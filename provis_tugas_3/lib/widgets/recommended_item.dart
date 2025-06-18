@@ -30,11 +30,15 @@ class RecommendedItem extends StatelessWidget {
           // Gambar
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
+            // Ganti menjadi Image.network
+            child: Image.network(
               imageUrl,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(width: 80, height: 80, color: Colors.grey);
+              },
             ),
           ),
           const SizedBox(width: 12),
