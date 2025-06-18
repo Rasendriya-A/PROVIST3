@@ -49,48 +49,49 @@ class _BrowseState extends State<Browse> {
         );
       }
     }
-  }  void _filterProducts(String query) {
+  }
+
+  void _filterProducts(String query) {
     setState(() {
       _searchQuery = query;
       if (query.isEmpty) {
-        _filteredProducts = _products;
-      } else {
+        _filteredProducts = _products;      } else {
         _filteredProducts = _products.where((product) {
-          final String searchTerm = query.toLowerCase();
-          return product.name.toLowerCase().contains(searchTerm) ||
-                 (product.description?.toLowerCase().contains(searchTerm) ?? false);
+          return product.name.toLowerCase().contains(query.toLowerCase()) ||
+                 (product.description?.toLowerCase().contains(query.toLowerCase()) ?? false);
         }).toList();
       }
     });
   }
-  Future<void> _addToCart(ProductItemData product) async {
+
+  void _addToCart(ProductItemData product) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       _showLoginDialog();
       return;
-    }
-
-    try {
+    }    try {
       await _cartService.addToCart(
         productId: product.id,
         productName: product.name,
         imageUrl: product.imageUrl,
-        price: double.tryParse(product.price) ?? 0.0,
+        price: double.tryParse(product.price.toString()) ?? 0.0,
         quantity: 1,
       );
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Product added to cart!'),
-            backgroundColor: AppColors.primary,
+          SnackBar(
+            content: Text('${product.name} added to cart'),
+            backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding to cart: $e')),
+          SnackBar(
+            content: Text('Error adding to cart: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -101,11 +102,11 @@ class _BrowseState extends State<Browse> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Login Required'),
-        content: const Text('Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.'),
+        content: const Text('Please login to add items to cart'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -150,7 +151,7 @@ class _BrowseState extends State<Browse> {
               controller: _searchController,
               onChanged: _filterProducts,
               decoration: InputDecoration(
-                hintText: 'Cari produk...',
+                hintText: 'Search products...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -161,7 +162,7 @@ class _BrowseState extends State<Browse> {
             ),
           ),
 
-          // Product Grid
+          // Products Grid
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -171,36 +172,35 @@ class _BrowseState extends State<Browse> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _searchQuery.isEmpty ? Icons.inventory : Icons.search_off,
+                              Icons.search_off,
                               size: 64,
-                              color: Colors.grey,
+                              color: Colors.grey[400],
                             ),
                             const SizedBox(height: 16),
                             Text(
                               _searchQuery.isEmpty
-                                  ? 'Tidak ada produk tersedia'
-                                  : 'Tidak ada produk yang cocok dengan pencarian "$_searchQuery"',
-                              style: AppTextStyles.label.copyWith(color: Colors.grey),
-                              textAlign: TextAlign.center,
+                                  ? 'No products available'
+                                  : 'No products found for "$_searchQuery"',
+                              style: AppTextStyles.label.copyWith(
+                                color: Colors.grey[600],
+                              ),
                             ),
                           ],
                         ),
                       )
-                    : Padding(
+                    : GridView.builder(
                         padding: const EdgeInsets.all(16),
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                          ),
-                          itemCount: _filteredProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = _filteredProducts[index];
-                            return _buildProductCard(product);
-                          },
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
                         ),
+                        itemCount: _filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = _filteredProducts[index];
+                          return _buildProductCard(product);
+                        },
                       ),
           ),
         ],
@@ -209,19 +209,28 @@ class _BrowseState extends State<Browse> {
   }
 
   Widget _buildProductCard(ProductItemData product) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailFixed(productId: product.id),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailFixed(productId: product.id),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
             ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -258,24 +267,20 @@ class _BrowseState extends State<Browse> {
                 padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Product Name
                     Text(
                       product.name,
                       style: AppTextStyles.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    ),                    // Product Description
-                    if (product.description != null)
-                      Text(
-                        product.description!,
-                        style: AppTextStyles.small.copyWith(color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
-                    // Price and Add Button
+                    ),
+                    const SizedBox(height: 4),                    Text(
+                      product.description ?? '',
+                      style: AppTextStyles.small,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -292,13 +297,9 @@ class _BrowseState extends State<Browse> {
                         ),
                         IconButton(
                           onPressed: () => _addToCart(product),
-                          icon: Icon(
-                            Icons.add_shopping_cart,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
+                          icon: const Icon(Icons.add_shopping_cart),
+                          iconSize: 20,
+                          color: AppColors.primary,
                         ),
                       ],
                     ),

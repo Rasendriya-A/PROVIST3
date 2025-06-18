@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provis_tugas_3/screens/auth/login_page.dart';
-import 'package:provis_tugas_3/screens/transaction/transaction_page_new.dart';
+import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
+import 'package:provis_tugas_3/screens/home/home_page.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -200,7 +201,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // User is logged in
           return isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _buildProfileContent();
+              : _buildProfileContent();        },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.background,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 3, // Profile tab is selected (index 3)
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: "Browse",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt),
+            label: "Transaksi",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],        onTap: (index) {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Browse()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const TransactionPage()),
+            );
+          }
+          // index 3 is current page (Profile), so no action needed
         },
       ),
     );
