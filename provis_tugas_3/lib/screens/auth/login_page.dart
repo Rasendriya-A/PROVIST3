@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
 import 'package:provis_tugas_3/screens/auth/auth_service.dart'; // Impor AuthService
-import 'package:provis_tugas_3/models/user_model.dart'; // Impor UserModel
+// Impor UserModel
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
 
     // Instance dari AuthService
     // Menunggu proses login dan memeriksa hasilnya
-    final AuthService _authService = AuthService();
-    User? user = await _authService.login(email, password);
+    final AuthService authService = AuthService();
+    User? user = await authService.login(email, password);
 
     if (user != null) {
       // Jika login berhasil

@@ -124,7 +124,7 @@ class CartItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Quantity controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,7 +154,8 @@ class CartItem extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            onPressed: () => onQuantityChanged(item.quantity + 1),
+                            onPressed:
+                                () => onQuantityChanged(item.quantity + 1),
                             icon: const Icon(Icons.add_circle_outline),
                             constraints: const BoxConstraints(
                               minWidth: 32,
@@ -163,7 +164,7 @@ class CartItem extends StatelessWidget {
                           ),
                         ],
                       ),
-                      
+
                       // Remove button
                       IconButton(
                         onPressed: () {
@@ -173,7 +174,9 @@ class CartItem extends StatelessWidget {
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Hapus Item'),
-                                content: Text('Hapus ${item.name} dari keranjang?'),
+                                content: Text(
+                                  'Hapus ${item.name} dari keranjang?',
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
@@ -191,7 +194,10 @@ class CartItem extends StatelessWidget {
                             },
                           );
                         },
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
                       ),
                     ],
                   ),

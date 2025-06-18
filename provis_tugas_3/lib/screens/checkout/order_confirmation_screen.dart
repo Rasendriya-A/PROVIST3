@@ -9,8 +9,7 @@ import 'package:provis_tugas_3/screens/home/home_page.dart';
 class OrderConfirmationScreen extends StatelessWidget {
   final CheckoutSummaryModel orderSummary;
 
-  const OrderConfirmationScreen({Key? key, required this.orderSummary})
-    : super(key: key);
+  const OrderConfirmationScreen({super.key, required this.orderSummary});
 
   @override
   Widget build(BuildContext context) {

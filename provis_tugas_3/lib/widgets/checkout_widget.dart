@@ -9,7 +9,7 @@ import 'package:provis_tugas_3/utils/app_colors.dart';
 class RentalItemCard extends StatelessWidget {
   final RentalItemModel item;
 
-  const RentalItemCard({Key? key, required this.item}) : super(key: key);
+  const RentalItemCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +67,11 @@ class DateSelector extends StatelessWidget {
   final Function(DateTime) onDateChanged;
 
   const DateSelector({
-    Key? key,
+    super.key,
     required this.label,
     required this.selectedDate,
     required this.onDateChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +118,11 @@ class PaymentMethodSelector extends StatelessWidget {
   final Function(PaymentMethodModel) onMethodChanged;
 
   const PaymentMethodSelector({
-    Key? key,
+    super.key,
     required this.selectedMethod,
     required this.availableMethods,
     required this.onMethodChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +169,10 @@ class PaymentMethodBottomSheet extends StatelessWidget {
   final Function(PaymentMethodModel) onMethodSelected;
 
   const PaymentMethodBottomSheet({
-    Key? key,
+    super.key,
     required this.availableMethods,
     required this.onMethodSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -211,8 +211,7 @@ class PaymentMethodBottomSheet extends StatelessWidget {
 class CheckoutSummaryCard extends StatelessWidget {
   final CheckoutSummaryModel summary;
 
-  const CheckoutSummaryCard({Key? key, required this.summary})
-    : super(key: key);
+  const CheckoutSummaryCard({super.key, required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -284,14 +283,14 @@ class CheckoutButton extends StatelessWidget {
   final bool isLoading;
 
   const CheckoutButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,

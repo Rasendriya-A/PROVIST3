@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/models/product_item_data.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
-import 'package:provis_tugas_3/utils/constants.dart';
-import 'package:provis_tugas_3/screens/product/detail.dart'; // Import Detail class
+import 'package:provis_tugas_3/screens/product/detail_fixed.dart'; // Import DetailFixed class
 import 'package:provis_tugas_3/services/product_service.dart';
+import 'package:provis_tugas_3/services/cart_service.dart';
+import 'package:provis_tugas_3/screens/auth/login_page.dart';
+import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 
 void _showSortBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -98,8 +100,7 @@ void _showFilterBottomSheet(BuildContext context) {
     ),
     builder: (context) {
       return StatefulBuilder(
-        builder: (context, setState) {
-          return Container(
+        builder: (context, setState) {          return SizedBox(
             height: MediaQuery.of(context).size.height * 0.6,
             child: SafeArea(
               child: Column(
@@ -325,8 +326,92 @@ Widget _buildFilterOption(
   );
 }
 
-class Browse extends StatelessWidget {
+class Browse extends StatefulWidget {
   const Browse({super.key});
+
+  @override
+  State<Browse> createState() => _BrowseState();
+}
+
+class _BrowseState extends State<Browse> {
+  final CartService _cartService = CartService();
+
+  // Method to show login dialog
+  void _showLoginDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Login Required'),
+            content: const Text(
+              'Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Method to add to cart
+  Future<void> _addToCart(ProductItemData product) async {
+    if (!_cartService.isUserAuthenticated) {
+      _showLoginDialog();
+      return;
+    }
+
+    // Parse price from string format like "Rp700.000"
+    double price = 0.0;
+    try {
+      String priceString = product.price.replaceAll(RegExp(r'[Rp.,\s]'), '');
+      price = double.parse(priceString);
+    } catch (e) {
+      price = 700000; // Default price if parsing fails
+    }
+
+    final success = await _cartService.addToCart(
+      productId: product.id,
+      productName: product.name,
+      imageUrl: product.imageUrl,
+      price: price,
+      quantity: 1,
+    );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${product.name} berhasil ditambahkan ke keranjang'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal menambahkan ke keranjang'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -356,7 +441,12 @@ class Browse extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RentalCartPage()),
+              );
+            },
           ),
         ],
         elevation: 0,
@@ -487,7 +577,6 @@ class Browse extends StatelessWidget {
   }
 
   // Ganti fungsi _buildProductFromData dengan ini
-
   Widget _buildProductCard(BuildContext context, ProductItemData product) {
     return InkWell(
       onTap: () {
@@ -495,7 +584,7 @@ class Browse extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Detail(productId: product.id),
+            builder: (context) => DetailFixed(productId: product.id),
           ),
         );
       },
@@ -552,10 +641,31 @@ class Browse extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: const [
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                      SizedBox(width: 4),
-                      Text("4.7", style: AppTextStyles.small),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.star, color: Colors.amber, size: 18),
+                          SizedBox(width: 4),
+                          Text("4.7", style: AppTextStyles.small),
+                        ],
+                      ),
+                      // Add to cart button
+                      InkWell(
+                        onTap: () => _addToCart(product),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],

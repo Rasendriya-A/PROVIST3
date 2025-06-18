@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provis_tugas_3/screens/auth/auth_service.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
-import 'package:provis_tugas_3/models/user_model.dart';
-import 'package:provis_tugas_3/screens/profile/services/mock_user_data.dart'; // Untuk mock data
+// Untuk mock data
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -43,8 +42,8 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    final AuthService _authService = AuthService();
-    User? user = await _authService.register(email, password);
+    final AuthService authService = AuthService();
+    User? user = await authService.register(email, password);
 
     if (user != null) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -59,13 +59,18 @@ class _TransactionPageState extends State<TransactionPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                     ),
-                    child: const Text('Login', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -107,7 +112,10 @@ class _TransactionPageState extends State<TransactionPage> {
                       SizedBox(height: 16),
                       Text(
                         'Belum ada transaksi',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 8),
                       Text(
@@ -154,7 +162,10 @@ class _TransactionPageState extends State<TransactionPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: transaction.statusColor,
                     borderRadius: BorderRadius.circular(16),
@@ -205,9 +216,14 @@ class _TransactionPageState extends State<TransactionPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Tanggal Mulai', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const Text(
+                          'Tanggal Mulai',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                         Text(
-                          DateFormat('dd/MM/yyyy').format(transaction.startDate),
+                          DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(transaction.startDate),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -218,7 +234,10 @@ class _TransactionPageState extends State<TransactionPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text('Tanggal Selesai', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const Text(
+                          'Tanggal Selesai',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                         Text(
                           DateFormat('dd/MM/yyyy').format(transaction.endDate),
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -232,57 +251,68 @@ class _TransactionPageState extends State<TransactionPage> {
             const SizedBox(height: 12),
 
             // Items
-            const Text(
-              'Items:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            ...transaction.items.take(3).map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Image.network(
-                      item.imageUrl,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 20),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ...transaction.items
+                .take(3)
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
                       children: [
-                        Text(
-                          item.name,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(
+                            item.imageUrl,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (c, e, s) => Container(
+                                  width: 40,
+                                  height: 40,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image, size: 20),
+                                ),
+                          ),
                         ),
-                        Text(
-                          'Qty: ${item.quantity} | Rp${formatNumber(item.price)}/hari',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                'Qty: ${item.quantity} | Rp${formatNumber(item.price)}/hari',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            )),
+                ),
             if (transaction.items.length > 3)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   '+${transaction.items.length - 3} item lainnya',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
 
@@ -295,7 +325,10 @@ class _TransactionPageState extends State<TransactionPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Total Pembayaran', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    const Text(
+                      'Total Pembayaran',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                     Text(
                       'Rp${formatNumber(transaction.totalAmount)}',
                       style: TextStyle(
@@ -307,7 +340,10 @@ class _TransactionPageState extends State<TransactionPage> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(8),
@@ -325,14 +361,18 @@ class _TransactionPageState extends State<TransactionPage> {
             ),
 
             // Action buttons based on status
-            if (transaction.status == model.TransactionStatus.completed && !transaction.isRated) ...[
+            if (transaction.status == model.TransactionStatus.completed &&
+                !transaction.isRated) ...[
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _showRatingDialog(transaction),
                   icon: const Icon(Icons.star, color: Colors.white),
-                  label: const Text('Beri Rating', style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    'Beri Rating',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                   ),
@@ -351,67 +391,80 @@ class _TransactionPageState extends State<TransactionPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Beri Rating'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Bagaimana pengalaman rental Anda?'),
-            const SizedBox(height: 16),
-            StatefulBuilder(
-              builder: (context, setState) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) => GestureDetector(
-                  onTap: () => setState(() => rating = index + 1),
-                  child: Icon(
-                    Icons.star,
-                    color: index < rating ? Colors.amber : Colors.grey,
-                    size: 32,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Beri Rating'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Bagaimana pengalaman rental Anda?'),
+                const SizedBox(height: 16),
+                StatefulBuilder(
+                  builder:
+                      (context, setState) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          5,
+                          (index) => GestureDetector(
+                            onTap: () => setState(() => rating = index + 1),
+                            child: Icon(
+                              Icons.star,
+                              color:
+                                  index < rating ? Colors.amber : Colors.grey,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: commentController,
+                  decoration: const InputDecoration(
+                    hintText: 'Tulis komentar (opsional)',
+                    border: OutlineInputBorder(),
                   ),
-                )),
-              ),
+                  maxLines: 3,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: commentController,
-              decoration: const InputDecoration(
-                hintText: 'Tulis komentar (opsional)',
-                border: OutlineInputBorder(),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
               ),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+              ElevatedButton(
+                onPressed: () async {
+                  final success = await _transactionService.rateTransaction(
+                    transaction.id,
+                    rating,
+                    commentController.text,
+                  );
+
+                  Navigator.pop(context);
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Rating berhasil diberikan!'),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Gagal memberikan rating')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text(
+                  'Kirim',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final success = await _transactionService.rateTransaction(
-                transaction.id,
-                rating,
-                commentController.text,
-              );
-              
-              Navigator.pop(context);
-              
-              if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Rating berhasil diberikan!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Gagal memberikan rating')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Kirim', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
   }
 }

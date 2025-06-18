@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:provis_tugas_3/routes/app_routes.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
@@ -9,7 +8,6 @@ import 'package:intl/date_symbol_data_local.dart'; // Add this import
 import 'screens/home/home_page.dart';
 import 'screens/profile/pf_user/profile_screen.dart';
 import 'screens/auth/login_page.dart';
-import 'screens/transaction/services/transaction_service.dart';
 
 // Import package Firebase Core dan file konfigurasi
 import 'package:firebase_core/firebase_core.dart';
@@ -23,38 +21,34 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TransactionService(), // Create your service
-      child: MaterialApp(
-        title: 'Aplikasi Resep',
-        theme: ThemeData(
-          primaryColor: const Color(0xFF4B6543),
-          appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF4B6543)),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4B6543),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+    return MaterialApp(
+      title: 'Aplikasi Resep',
+      theme: ThemeData(
+        primaryColor: const Color(0xFF4B6543),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF4B6543)),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4B6543),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
-        home: const NavigationScreen(),
-        debugShowCheckedModeBanner: false,
-        routes: AppRoutes.routes,
       ),
+      home: const HomePage(),
+      debugShowCheckedModeBanner: false,
+      routes: AppRoutes.routes,
     );
   }
 }
 
 class NavigationScreen extends StatelessWidget {
-  const NavigationScreen({Key? key}) : super(key: key);
+  const NavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +103,7 @@ class NavigationScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const TransactionsScreen(),
+                            builder: (context) => const TransactionPage(),
                           ),
                         );
                       },

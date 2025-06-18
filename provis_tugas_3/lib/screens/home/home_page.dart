@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/models/product_item_data.dart';
-import 'package:provis_tugas_3/screens/transaction/services/transaction_service.dart';
 import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
@@ -13,19 +12,30 @@ import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/services/product_service.dart';
+import 'package:provis_tugas_3/services/product_setup.dart';
+import 'package:provis_tugas_3/widgets/auth_debug_widget.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final ProductSetup _productSetup = ProductSetup();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+        padding: const EdgeInsets.all(16),        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // DEBUG: Auth Status Widget
+            AuthDebugWidget(),
+            const SizedBox(height: 8),
             // Header
             Container(
               color: AppColors.primary,
@@ -59,10 +69,45 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-
-            // App Title
-            Text(AppConstants.appName, style: AppTextStyles.appTitle),
+            const SizedBox(height: 16), // App Title
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppConstants.appName, style: AppTextStyles.appTitle),
+                // Temporary setup button
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      await _productSetup.addSampleProducts();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ Produk berhasil ditambahkan!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('❌ Error: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.add_box, size: 16),
+                  label: const Text('Setup'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
 
             // Carousel
@@ -215,9 +260,7 @@ class HomePage extends StatelessWidget {
             // Jika tombol Transaction ditekan (index 1)
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const TransactionsScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const TransactionPage()),
             );
           } else if (index == 2) {
             // Jika tombol Profile ditekan (index 2)
@@ -242,14 +285,15 @@ class HomePage extends StatelessWidget {
   static Widget _carouselImage(String imageUrl) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
-      // Ganti menjadi Image.network
-      child: Image.network(
+      child: Image.asset(
         imageUrl,
         fit: BoxFit.cover,
         width: double.infinity,
-        // Tambahkan ini untuk menangani jika gambar gagal dimuat
         errorBuilder: (context, error, stackTrace) {
-          return Container(color: Colors.grey, child: const Icon(Icons.error));
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.image_not_supported, color: Colors.grey),
+          );
         },
       ),
     );

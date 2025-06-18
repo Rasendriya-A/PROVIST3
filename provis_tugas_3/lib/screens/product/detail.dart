@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/models/review_model.dart';
-// import 'package:provis_tugas_3/services/cart_service.dart';
+import 'package:provis_tugas_3/services/cart_service.dart';
 import 'package:provis_tugas_3/services/product_service.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
+import 'package:provis_tugas_3/screens/auth/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Detail extends StatefulWidget {
   final String productId;
@@ -16,8 +18,61 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   final ProductService _productService = ProductService();
-  // final CartService _cartService = CartService();
+  final CartService _cartService = CartService();
   int quantity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen for auth state changes
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      print('=== AUTH STATE CHANGE ===');
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in: ${user.email}');
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  // Method to show login dialog
+  void _showLoginDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Login Required'),
+            content: const Text(
+              'Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
 
   // Fungsi untuk menampilkan bottom sheet "Tambah ke Keranjang"
   void _showCartBottomSheet(Map<String, dynamic> productData) {
@@ -132,22 +187,67 @@ class _DetailState extends State<Detail> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       minimumSize: const Size(double.infinity, 50),
-                    ),
-                    onPressed: () async {
-                      // await _cartService.addToCart(
-                      //   widget.productId,
-                      //   productData,
-                      //   quantity,
-                      // );
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${productData['name']} berhasil ditambahkan',
-                          ),
-                          backgroundColor: AppColors.primary,
-                        ),
+                    ),                    onPressed: () async {
+                      // Debug logging
+                      print('=== ADD TO CART DEBUG ===');
+                      print('User authenticated: ${_cartService.isUserAuthenticated}');
+                      print('Current user: ${FirebaseAuth.instance.currentUser?.email ?? 'No user'}');
+                      print('Current user ID: ${FirebaseAuth.instance.currentUser?.uid ?? 'null'}');
+                      
+                      // Check if user is authenticated
+                      if (!_cartService.isUserAuthenticated) {
+                        print('User not authenticated, showing login dialog');
+                        // Show login dialog
+                        _showLoginDialog();
+                        return;
+                      } // Add to cart
+                      double price = 0.0;
+                      try {
+                        // Handle different price formats
+                        final priceValue = productData['price'];
+                        if (priceValue is String) {
+                          // Remove all non-digit characters and parse
+                          String cleanPrice = priceValue.replaceAll(
+                            RegExp(r'[^0-9]'),
+                            '',
+                          );
+                          price = double.parse(cleanPrice);
+                        } else if (priceValue is num) {
+                          price = priceValue.toDouble();
+                        } else {
+                          price = 700000; // Default fallback price
+                        }
+                      } catch (e) {
+                        price = 700000; // Default fallback price
+                      }
+
+                      final success = await _cartService.addToCart(
+                        productId: widget.productId,
+                        productName: productData['name'],
+                        imageUrl: productData['imageUrl'],
+                        price: price,
+                        quantity: quantity,
                       );
+
+                      Navigator.pop(context);
+
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${productData['name']} berhasil ditambahkan ke keranjang',
+                            ),
+                            backgroundColor: AppColors.primary,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gagal menambahkan ke keranjang'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     child: const Text(
                       'Masukkan Ke Keranjang',

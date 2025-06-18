@@ -17,7 +17,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final TransactionService _transactionService = TransactionService();
   final CartService _cartService = CartService();
-  
+
   bool _isProcessing = false;
   bool _showQRIS = false;
 
@@ -97,17 +97,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as CheckoutArguments?;
-    
+    final args =
+        ModalRoute.of(context)?.settings.arguments as CheckoutArguments?;
+
     if (args == null) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Checkout'),
           backgroundColor: AppColors.primary,
         ),
-        body: const Center(
-          child: Text('No data found'),
-        ),
+        body: const Center(child: Text('No data found')),
       );
     }
 
@@ -143,50 +142,61 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          ...args.selectedItems.map((item) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    item.imageUrl,
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (c, e, s) => Container(
+                          ...args.selectedItems.map(
+                            (item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      item.imageUrl,
                                       width: 50,
                                       height: 50,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.image),
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (c, e, s) => Container(
+                                            width: 50,
+                                            height: 50,
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.image),
+                                          ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.name,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        'Qty: ${item.quantity} | Rp${formatNumber(item.price)}/hari',
-                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Qty: ${item.quantity} | Rp${formatNumber(item.price)}/hari',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          )),
+                          ),
                           const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Periode Rental:'),
-                              Text('${DateFormat('dd/MM/yyyy').format(args.startDate)} - ${DateFormat('dd/MM/yyyy').format(args.endDate)}'),
+                              Text(
+                                '${DateFormat('dd/MM/yyyy').format(args.startDate)} - ${DateFormat('dd/MM/yyyy').format(args.endDate)}',
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -194,14 +204,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Durasi:'),
-                              Text('${args.endDate.difference(args.startDate).inDays} hari'),
+                              Text(
+                                '${args.endDate.difference(args.startDate).inDays} hari',
+                              ),
                             ],
                           ),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
 
                   // Payment Method
@@ -238,7 +250,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   ),
                                 ),
                                 const Spacer(),
-                                Icon(Icons.check_circle, color: AppColors.primary),
+                                Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.primary,
+                                ),
                               ],
                             ),
                           ),
@@ -263,10 +278,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 16),                            // QRIS Display
-                            const QRISWidget(
+                            const SizedBox(height: 16),                            Container(
                               width: 200,
                               height: 200,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const QRISWidget(),
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -281,17 +300,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _isProcessing ? null : () => _confirmPayment(args),
+                                onPressed:
+                                    _isProcessing
+                                        ? null
+                                        : () => _confirmPayment(args),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                 ),
-                                child: _isProcessing
-                                    ? const CircularProgressIndicator(color: Colors.white)
-                                    : const Text(
-                                        'Konfirmasi Pembayaran',
-                                        style: TextStyle(color: Colors.white, fontSize: 16),
-                                      ),
+                                child:
+                                    _isProcessing
+                                        ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                        : const Text(
+                                          'Konfirmasi Pembayaran',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                               ),
                             ),
                           ],
@@ -346,17 +376,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isProcessing ? null : () => _processPayment(args),
+                        onPressed:
+                            _isProcessing ? null : () => _processPayment(args),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: _isProcessing
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Bayar Sekarang',
-                                style: TextStyle(color: Colors.white, fontSize: 16),
-                              ),
+                        child:
+                            _isProcessing
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                                : const Text(
+                                  'Bayar Sekarang',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
                       ),
                     ),
                   ],

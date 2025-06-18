@@ -13,7 +13,7 @@ class UserModel {
 
   // Method untuk memperbarui password
   void updatePassword(String newPassword) {
-    this.password = newPassword;
+    password = newPassword;
   }
 
   // Method konversi ke JSON

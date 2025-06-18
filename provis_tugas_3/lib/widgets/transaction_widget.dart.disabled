@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 // import '../screens/review_dialog.dart';
 
 class StatusFilterBar extends StatelessWidget {
-  const StatusFilterBar({Key? key}) : super(key: key);
+  const StatusFilterBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +54,10 @@ class _FilterButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _FilterButton({
-    Key? key,
     required this.label,
     required this.isActive,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +94,10 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback onRatingPressed;
 
   const TransactionCard({
-    Key? key,
+    super.key,
     required this.transaction,
     required this.onRatingPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +185,7 @@ class TransactionCard extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -238,7 +237,7 @@ class TransactionCard extends StatelessWidget {
 class _StatusTag extends StatelessWidget {
   final String status;
 
-  const _StatusTag({Key? key, required this.status}) : super(key: key);
+  const _StatusTag({required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -271,10 +270,10 @@ class RatingDialog extends StatefulWidget {
   final Function(Review) onSubmit;
 
   const RatingDialog({
-    Key? key,
+    super.key,
     required this.transactionId,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   _RatingDialogState createState() => _RatingDialogState();

@@ -1,5 +1,6 @@
 // models/cart_item_model.dart
 class RentalItem {
+  final String? productId;
   final String name;
   final String imageUrl;
   final double price;
@@ -7,6 +8,7 @@ class RentalItem {
   int quantity;
 
   RentalItem({
+    this.productId,
     required this.name,
     required this.imageUrl,
     required this.price,

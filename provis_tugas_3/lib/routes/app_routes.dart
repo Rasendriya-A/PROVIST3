@@ -6,7 +6,6 @@ import 'package:provis_tugas_3/screens/auth/forget_pass_page.dart';
 import 'package:provis_tugas_3/screens/auth/change_password_page.dart';
 import 'package:provis_tugas_3/screens/profile/profile_page.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
-import 'package:provis_tugas_3/screens/product/detail.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/screens/checkout/checkout_page.dart';
 import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
@@ -37,7 +36,7 @@ class AppRoutes {
     browse: (context) => const Browse(),
     // detail: (context) => const Detail(),
     cart: (context) => const RentalCartPage(),
-    checkout: (context) => const CheckoutScreen(),
-    transaction: (context) => const TransactionsScreen(),
+    checkout: (context) => const CheckoutPage(),
+    transaction: (context) => const TransactionPage(),
   };
 }

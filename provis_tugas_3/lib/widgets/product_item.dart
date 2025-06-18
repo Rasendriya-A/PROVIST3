@@ -6,6 +6,7 @@ class ProductItem extends StatelessWidget {
   final String imageUrl;
 
   const ProductItem({
+    super.key,
     required this.name,
     required this.price,
     required this.imageUrl,
@@ -22,15 +23,24 @@ class ProductItem extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            height: 80,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                // Ganti menjadi NetworkImage
-                image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.network(
+              imageUrl,
+              height: 80,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 80,
+                  color: Colors.grey[300],
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    color: Colors.grey,
+                    size: 32,
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 4),

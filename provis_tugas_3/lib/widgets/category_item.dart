@@ -15,8 +15,21 @@ class CategoryItem extends StatelessWidget {
           CircleAvatar(
             radius: 28,
             backgroundColor: Colors.brown.shade100,
-            // Ganti menjadi NetworkImage
-            backgroundImage: NetworkImage(imageUrl),
+            backgroundImage:
+                imageUrl.startsWith('http')
+                    ? NetworkImage(imageUrl) as ImageProvider
+                    : AssetImage(imageUrl),
+            onBackgroundImageError: (exception, stackTrace) {
+              print('Error loading category image: $imageUrl');
+            },
+            child:
+                imageUrl.startsWith('http') || imageUrl.startsWith('assets/')
+                    ? null
+                    : Icon(
+                      Icons.category,
+                      color: Colors.brown.shade300,
+                      size: 24,
+                    ),
           ),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(fontSize: 12)),
