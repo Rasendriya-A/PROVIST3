@@ -1,422 +1,166 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:provis_tugas_3/models/review_model.dart';
-import 'package:provis_tugas_3/services/cart_service.dart';
-import 'package:provis_tugas_3/services/product_service.dart';
-import 'package:provis_tugas_3/utils/app_colors.dart';
-import 'package:provis_tugas_3/screens/auth/login_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// lib/screens/product/detail_fixed.dart
 
-class DetailFixed extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:provis_tugas_3/models/product_item_data.dart';
+import 'package:provis_tugas_3/models/review_model.dart';
+import 'package:provis_tugas_3/services/product_service.dart';
+import 'package:provis_tugas_3/services/review_service.dart'; // PENTING: Import ReviewService
+
+class DetailFixedPage extends StatefulWidget {
   final String productId;
 
-  const DetailFixed({super.key, required this.productId});
+  const DetailFixedPage({Key? key, required this.productId}) : super(key: key);
 
   @override
-  State<DetailFixed> createState() => _DetailFixedState();
+  _DetailFixedPageState createState() => _DetailFixedPageState();
 }
 
-class _DetailFixedState extends State<DetailFixed> {
+class _DetailFixedPageState extends State<DetailFixedPage> {
+  // Buat instance dari kedua service yang dibutuhkan
   final ProductService _productService = ProductService();
-  final CartService _cartService = CartService();
-  int quantity = 1;
+  final ReviewService _reviewService = ReviewService();
 
-  // Method to show login dialog
-  void _showLoginDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Login Required'),
-        content: const Text(
-          'Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-            ),
-            child: const Text(
-              'Login',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  late Future<ProductItemData> _productFuture;
 
-  // Fungsi untuk menampilkan bottom sheet "Tambah ke Keranjang"
-  void _showCartBottomSheet(Map<String, dynamic> productData) {
-    setState(() => quantity = 1); // Reset kuantitas
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              height: MediaQuery.of(context).size.height * 0.5,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Tambah ke Keranjang',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          productData['imageUrl'],
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (c, e, s) => Container(
-                            width: 80,
-                            height: 80,
-                            color: Colors.grey[200],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              productData['name'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Rp${productData['price']} per hari",
-                              style: const TextStyle(
-                                color: Colors.deepOrange,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Jumlah', style: TextStyle(fontSize: 16)),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: () => setModalState(() {
-                              if (quantity > 1) quantity--;
-                            }),
-                          ),
-                          Text(
-                            quantity.toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () => setModalState(() => quantity++),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  StreamBuilder<User?>(
-                    stream: FirebaseAuth.instance.authStateChanges(),
-                    builder: (context, authSnapshot) {
-                      final user = authSnapshot.data;
-                      
-                      return ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          minimumSize: const Size(double.infinity, 50),
-                        ),                        onPressed: () async {
-                          // Check if user is authenticated using stream data
-                          if (user == null) {
-                            Navigator.pop(context); // Close bottom sheet first
-                            _showLoginDialog();
-                            return;
-                          }
-
-                          // Add to cart
-                          double price = 0.0;
-                          try {
-                            final priceValue = productData['price'];
-                            if (priceValue is String) {
-                              String cleanPrice = priceValue.replaceAll(
-                                RegExp(r'[^0-9]'),
-                                '',
-                              );
-                              price = double.parse(cleanPrice);
-                            } else if (priceValue is num) {
-                              price = priceValue.toDouble();
-                            } else {
-                              price = 700000;
-                            }
-                          } catch (e) {
-                            price = 700000;                          }
-
-                          print('Adding product: ${productData['name']} with price: $price');
-
-                          final success = await _cartService.addToCart(
-                            productId: widget.productId,
-                            productName: productData['name'],
-                            imageUrl: productData['imageUrl'],
-                            price: price,
-                            quantity: quantity,
-                          );
-
-                          Navigator.pop(context);
-
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${productData['name']} berhasil ditambahkan ke keranjang',
-                                ),
-                                backgroundColor: AppColors.primary,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Gagal menambahkan ke keranjang'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text(
-                          'Masukkan Ke Keranjang',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    // Panggil method getProductById yang sudah diperbarui
+    _productFuture = _productService.getProductById(widget.productId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text(
-          'Detail Produk',
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: _productService.getProductById(widget.productId),
+      appBar: AppBar(title: Text('Detail Produk')),
+      body: FutureBuilder<ProductItemData>(
+        future: _productFuture,
         builder: (context, snapshot) {
+          // Bagian loading, error, dan data tidak ditemukan
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text("Produk tidak ditemukan."));
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Gagal memuat produk: ${snapshot.error}"),
+            );
           }
-          var productData = snapshot.data!.data() as Map<String, dynamic>;
+          if (!snapshot.hasData) {
+            return Center(child: Text("Produk tidak ditemukan."));
+          }
 
+          // Jika berhasil, 'snapshot.data' adalah objek ProductItemData
+          final product = snapshot.data!;
+
+          // Tampilan utama halaman detail
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  productData['imageUrl'],
-                  width: double.infinity,
-                  height: 250,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(
-                    height: 250,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.error),
+                // Gambar Produk
+                if (product.imageUrl.isNotEmpty)
+                  Center(
+                    child: Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      // Tambahkan error builder untuk menangani gambar yang gagal dimuat
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              Icon(Icons.image_not_supported, size: 100),
+                    ),
                   ),
+                SizedBox(height: 20),
+
+                // Nama Produk
+                Text(
+                  product.name,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        productData['name'],
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Rp${productData['price']} per hari",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.deepOrange,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
-                        onPressed: () => _showCartBottomSheet(productData),
-                        child: const Text(
-                          'Masukkan Ke Keranjang',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Deskripsi',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        productData['description'] ?? 'Tidak ada deskripsi.',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Ulasan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      FutureBuilder<QuerySnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('reviews')
-                            .where('productId', isEqualTo: widget.productId)
-                            .get(),
-                        builder: (context, reviewSnapshot) {
-                          if (reviewSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
-                          if (!reviewSnapshot.hasData ||
-                              reviewSnapshot.data!.docs.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text("Belum ada ulasan untuk produk ini."),
-                            );
-                          }
-                          final reviews = reviewSnapshot.data!.docs;
-                          return ListView.builder(
-                            itemCount: reviews.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final review = ReviewModel.fromFirestore(
-                                reviews[index],
-                              );
-                              return Card(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        review.userName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: List.generate(
-                                          5,
-                                          (starIndex) => Icon(
-                                            starIndex < review.rating
-                                                ? Icons.star
-                                                : Icons.star_border,
-                                            color: Colors.amber,
-                                            size: 16,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(review.comment),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                SizedBox(height: 8),
+
+                // Harga
+                Text(
+                  product.price,
+                  style: TextStyle(fontSize: 20, color: Colors.deepOrange),
                 ),
+                SizedBox(height: 16),
+
+                // Deskripsi
+                Text(
+                  product.description ?? 'Tidak ada deskripsi.',
+                  style: TextStyle(fontSize: 16, height: 1.5),
+                ),
+                SizedBox(height: 24),
+
+                // Garis pemisah
+                Divider(),
+                SizedBox(height: 16),
+
+                // Bagian Ulasan
+                Text(
+                  'Ulasan Pengguna',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+
+                // Panggil widget untuk membangun daftar ulasan
+                _buildReviewsSection(widget.productId),
+
+                // Anda bisa menambahkan tombol untuk menambah ulasan di sini
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  // Widget terpisah untuk membangun bagian ulasan
+  Widget _buildReviewsSection(String productId) {
+    return StreamBuilder<List<ReviewModel>>(
+      // Gunakan ReviewService untuk mendapatkan stream ulasan
+      stream: _reviewService.getReviewsByProductId(productId).asStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(strokeWidth: 2));
+        }
+        if (snapshot.hasError) {
+          return Text('Gagal memuat ulasan.');
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Text('Belum ada ulasan untuk produk ini.');
+        }
+
+        final reviews = snapshot.data!;
+
+        return ListView.builder(
+          shrinkWrap:
+              true, // Agar ListView tidak mengambil semua ruang vertikal
+          physics:
+              NeverScrollableScrollPhysics(), // Agar tidak bisa di-scroll sendiri
+          itemCount: reviews.length,
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8.0),
+              child: ListTile(
+                leading: CircleAvatar(child: Icon(Icons.person)),
+                title: Text(review.userName),
+                subtitle: Text(review.comment),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(review.rating.toString()),
+                    Icon(Icons.star, color: Colors.amber, size: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

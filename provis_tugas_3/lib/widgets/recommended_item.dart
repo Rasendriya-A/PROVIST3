@@ -27,14 +27,19 @@ class RecommendedItem extends StatelessWidget {
     final displayDescription = product?.description ?? description ?? '';
     final displayPrice = product?.price.toString() ?? price ?? '';
 
-    return GestureDetector(      onTap: product != null ? () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailFixed(productId: product!.id),
-          ),
-        );
-      } : null,
+    return GestureDetector(
+      onTap:
+          product != null
+              ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => DetailFixedPage(productId: product!.id),
+                  ),
+                );
+              }
+              : null,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(8),
@@ -56,27 +61,34 @@ class RecommendedItem extends StatelessWidget {
             // Gambar
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: displayImageUrl.isNotEmpty
-                  ? Image.network(
-                      displayImageUrl,
-                      width: double.infinity,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: double.infinity,
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: double.infinity,
-                      height: 120,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                    ),
+              child:
+                  displayImageUrl.isNotEmpty
+                      ? Image.network(
+                        displayImageUrl,
+                        width: double.infinity,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: double.infinity,
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                      : Container(
+                        width: double.infinity,
+                        height: 120,
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
+                      ),
             ),
             const SizedBox(height: 8),
             // Bagian teks

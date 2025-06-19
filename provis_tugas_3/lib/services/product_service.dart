@@ -1,90 +1,128 @@
 // lib/services/product_service.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provis_tugas_3/models/product_item_data.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provis_tugas_3/models/product_item_data.dart'; // Sesuaikan path jika perlu
 
 class ProductService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final CollectionReference _productCollection = FirebaseFirestore.instance
+      .collection('products');
 
-  // Mengambil semua produk dari collection 'products'
-  Future<List<ProductItemData>> getProducts() async {
+  // Helper method internal untuk mengubah data Firestore menjadi objek ProductItemData
+  ProductItemData _mapToProductItemData(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
+    num priceValue = 0;
+    if (data['price'] is String) {
+      priceValue = num.tryParse(data['price']) ?? 0;
+    } else if (data['price'] is num) {
+      priceValue = data['price'];
+    }
+
+    return ProductItemData(
+      id: doc.id,
+      name: data['name'] ?? 'No Name',
+      price: "Rp${priceValue.toInt()} per hari",
+      imageUrl: data['imageUrl'] ?? '',
+      description: data['description'] as String?,
+      // Anda bisa tambahkan properti lain di sini jika model Anda memilikinya
+      // averageRating: (data['averageRating'] as num? ?? 0).toDouble(),
+    );
+  }
+
+  /// Mengambil semua produk, dengan opsi filter dan urutan.
+  Future<List<ProductItemData>> getProducts({
+    String? category,
+    String? sortBy,
+  }) async {
     try {
-      QuerySnapshot snapshot = await _db.collection('products').get();
+      Query query = _productCollection;
 
-      print(
-        "Jumlah dokumen yang ditemukan di Firestore: ${snapshot.docs.length}",
-      );
+      // Filter berdasarkan kategori
+      if (category != null && category.isNotEmpty && category != 'All') {
+        query = query.where('category', isEqualTo: category);
+      }
 
-      List<ProductItemData> products =
-          snapshot.docs.map((doc) {
-            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      // Urutkan hasil
+      if (sortBy != null && sortBy.isNotEmpty) {
+        String fieldToSortBy = 'createdAt';
+        bool descending = true;
 
-            // --- LOGIKA BARU UNTUK HARGA YANG LEBIH AMAN ---
-            num priceValue =
-                0; // Siapkan variabel untuk menampung harga sebagai angka
+        if (sortBy == 'harga_tertinggi') {
+          fieldToSortBy = 'price_num'; // PASTIKAN ADA FIELD INI DI FIRESTORE
+          descending = true;
+        } else if (sortBy == 'harga_terendah') {
+          fieldToSortBy = 'price_num'; // PASTIKAN ADA FIELD INI DI FIRESTORE
+          descending = false;
+        }
 
-            if (data['price'] is String) {
-              // Jika datanya adalah String, coba parse menjadi angka
-              priceValue = num.tryParse(data['price']) ?? 0;
-            } else if (data['price'] is num) {
-              // Jika datanya sudah angka, langsung gunakan
-              priceValue = data['price'];
-            }
+        query = query.orderBy(fieldToSortBy, descending: descending);
+      }
 
-            // Modifikasi ProductItemData untuk menyertakan ID
-            return ProductItemData(
-              id: doc.id, // Ambil ID dokumen, ini PENTING untuk halaman detail
-              name: data['name'] ?? 'No Name',
-              price: "Rp${priceValue.toInt()} per hari",
-              imageUrl: data['imageUrl'] ?? '',
-              description: data['description'] as String?,
-            );
-          }).toList();
-
+      final snapshot = await query.get();
+      final products = snapshot.docs.map(_mapToProductItemData).toList();
       return products;
     } catch (e) {
       print("Error getting products: $e");
+      if (e.toString().contains('requires an index')) {
+        print(
+          "PENTING: Firestore membutuhkan index untuk query ini. Silakan buat di Firebase console.",
+        );
+      }
       return [];
     }
   }
 
-  // Mengambil satu produk berdasarkan ID-nya
-  Future<DocumentSnapshot> getProductById(String productId) {
-    return _db.collection('products').doc(productId).get();
+  /// Mengambil satu produk berdasarkan ID-nya.
+  Future<ProductItemData> getProductById(String productId) async {
+    final doc = await _productCollection.doc(productId).get();
+    return _mapToProductItemData(doc);
   }
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  /// Mencari produk berdasarkan nama.
+  Future<List<ProductItemData>> searchProducts(String searchQuery) async {
+    if (searchQuery.isEmpty) {
+      return [];
+    }
 
-  Future<void> addProductReview(
-    String productId,
-    int rating,
-    String comment,
-  ) async {
-    final User? user = _auth.currentUser;
-    if (user == null) return; // Hanya user yang login yang bisa memberi review
+    try {
+      final snapshot =
+          await _productCollection
+              .where('name', isGreaterThanOrEqualTo: searchQuery)
+              .where('name', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+              .get();
 
-    await _db.collection('products').doc(productId).collection('reviews').add({
-      'userId': user.uid,
-      'userName':
-          user.displayName ?? user.email ?? 'Anonymous', // Ambil nama user
-      'rating': rating,
-      'comment': comment,
-      'createdAt': Timestamp.now(),
-    });
-
-    // (Opsional Lanjutan): Anda bisa menambahkan logika untuk update rata-rata rating di dokumen produk utama
+      return snapshot.docs.map(_mapToProductItemData).toList();
+    } catch (e) {
+      print("Error searching products: $e");
+      return [];
+    }
   }
 
-  Stream<QuerySnapshot> getProductReviewsStream(String productId) {
-    return _db
-        .collection('products')
-        .doc(productId)
-        .collection('reviews')
-        .orderBy(
-          'createdAt',
-          descending: true,
-        ) // Tampilkan yang terbaru di atas
-        .snapshots();
+  /// === FUNGSI YANG DIPERBAIKI ===
+  /// Mengambil daftar semua kategori unik dari produk.
+  Future<List<String>> getCategories() async {
+    try {
+      final snapshot = await _productCollection.get();
+
+      // Mengambil semua nilai kategori dan memfilternya
+      final categoryList =
+          snapshot.docs
+              .map(
+                (doc) =>
+                    (doc.data() as Map<String, dynamic>)['category'] as String?,
+              )
+              .whereType<
+                String
+              >() // Hanya ambil nilai yang bertipe String (membuang null)
+              .toSet() // Jadikan unik
+              .toList(); // Ubah kembali ke List
+
+      // Sekarang 'categoryList' dijamin bertipe List<String>
+      return ['All', ...categoryList];
+    } catch (e) {
+      print("Error getting categories: $e");
+      return ['All'];
+    }
   }
 }
