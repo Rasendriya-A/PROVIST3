@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(builder: (context) => const Browse()),
                     );
                   },
-                  child: Icon(Icons.search, color: AppColors.textLight),
+                  child: Icon(Icons.search, color: Colors.white),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   },
-                  child: Icon(Icons.shopping_cart, color: AppColors.textLight),
+                  child: Icon(Icons.shopping_cart, color: Colors.white),
                 ),
               ],
             ),
@@ -160,18 +160,33 @@ class _HomePageState extends State<HomePage> {
                         ),
                         SizedBox(width: 12),
                         CategoryItem(
-                          label: "Tas",
-                          imageUrl: "assets/images/category/tas.jpg",
-                        ),
-                        SizedBox(width: 12),
-                        CategoryItem(
                           label: "Sleeping Bag",
                           imageUrl: "assets/images/category/sleeping_bag.jpg",
                         ),
                         SizedBox(width: 12),
                         CategoryItem(
+                          label: "Pemandu",
+                          imageUrl: "assets/images/category/pemandu.jpg",
+                        ),
+                        SizedBox(width: 12),
+                        CategoryItem(
                           label: "Paket Camping",
                           imageUrl: "assets/images/category/paket.jpg",
+                        ),
+                        SizedBox(width: 12),
+                        CategoryItem(
+                          label: "Tas",
+                          imageUrl: "assets/images/category/tas.jpg",
+                        ),
+                        SizedBox(width: 12),
+                        CategoryItem(
+                          label: "Kitchenware",
+                          imageUrl: "assets/images/category/kitchenware.webp",
+                        ),
+                        SizedBox(width: 12),
+                        CategoryItem(
+                          label: "Sepatu",
+                          imageUrl: "assets/images/category/sepatu.webp",
                         ),
                       ],
                     ),

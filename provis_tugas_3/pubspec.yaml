@@ -69,8 +69,6 @@ flutter:
       fonts:
         # Ini untuk style regular/normal
         - asset: assets/fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf
-        
-          style: italic
 
     - family: Inter
       fonts:

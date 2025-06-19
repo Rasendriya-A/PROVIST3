@@ -140,7 +140,7 @@ class _BrowseState extends State<Browse> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Filter & Sort'),
+            title: const Text('Filter & Urutkan'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -309,9 +309,15 @@ class _BrowseState extends State<Browse> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text(
-          'Browse Products',
-          style: TextStyle(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ), // Ganti ikonnya
+          onPressed: () {
+            // Aksi default-nya adalah Navigator.pop(context)
+            Navigator.of(context).pop();
+          },
         ),
         actions: [
           IconButton(
@@ -433,7 +439,7 @@ class _BrowseState extends State<Browse> {
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
-                                childAspectRatio: 0.75,
+                                childAspectRatio: 0.7,
                                 crossAxisSpacing: 12,
                                 mainAxisSpacing: 12,
                               ),
@@ -537,7 +543,7 @@ class _BrowseState extends State<Browse> {
                         style: AppTextStyles.small.copyWith(
                           color: Colors.grey[600],
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
 
@@ -561,7 +567,7 @@ class _BrowseState extends State<Browse> {
                           icon: Icon(
                             Icons.add_shopping_cart,
                             color: AppColors.primary,
-                            size: 20,
+                            size: 10,
                           ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
