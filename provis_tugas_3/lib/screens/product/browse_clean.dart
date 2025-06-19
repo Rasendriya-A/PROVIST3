@@ -214,7 +214,7 @@ class _BrowseState extends State<Browse> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailFixed(productId: product.id),
+            builder: (context) => DetailFixedPage(productId: product.id),
           ),
         );
       },

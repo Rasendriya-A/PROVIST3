@@ -39,6 +39,10 @@ class AppTextStyles {
   );
 
   static const appTitle = TextStyle(
+    fontFamily: 'Inter',
+    fontVariations: [
+      FontVariation('wght', 700.0), // Mengatur ketebalan menjadi Bold
+    ],
     fontSize: 32,
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,

@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Aplikasi Resep',
+      title: 'YukKemah!',
       theme: ThemeData(
         primaryColor: const Color(0xFF4B6543),
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF4B6543)),
