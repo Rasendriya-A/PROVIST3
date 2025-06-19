@@ -70,8 +70,6 @@ flutter:
         # Ini untuk style regular/normal
         - asset: assets/fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf
         
-        # Ini untuk style italic, kita tambahkan `style: italic`
-        - asset: assets/fonts/Merriweather-Italic-VariableFont_opsz,wght.ttf
           style: italic
 
     - family: Inter
