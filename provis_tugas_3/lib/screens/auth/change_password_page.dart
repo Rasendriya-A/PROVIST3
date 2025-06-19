@@ -1,13 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/utils/app_text_styles.dart';
-import 'package:provis_tugas_3/models/user_model.dart';
-import 'package:provis_tugas_3/screens/profile/services/mock_user_data.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  final String email; // Menambahkan email untuk mengidentifikasi pengguna
-
-  const ChangePasswordPage({super.key, required this.email});
+  const ChangePasswordPage({super.key});
 
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
@@ -15,7 +12,8 @@ class ChangePasswordPage extends StatefulWidget {
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   // Fungsi untuk memeriksa apakah password valid
   bool _isPasswordValid(String password) {
@@ -23,7 +21,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   // Fungsi untuk mengubah password
-  void _changePassword() {
+  void _changePassword() async {
     String newPassword = _newPasswordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
@@ -42,29 +40,32 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
 
-    // Mencari user yang sesuai berdasarkan email yang diterima
-    UserModel? userToUpdate = mockUsers.firstWhere(
-      (user) => user.email == widget.email,
-      orElse: () => UserModel(id: -1, name: "", email: "", password: ""),
-    );
+    User? user = FirebaseAuth.instance.currentUser;
 
-    if (userToUpdate.id != -1) {
-      // Memperbarui password pengguna yang ditemukan
-      setState(() {
-        userToUpdate.updatePassword(newPassword); // Menggunakan metode updatePassword
-      });
-
-      // Jika password valid dan cocok
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password berhasil diubah")),
-      );
-
-      // Navigasi ke halaman login setelah perubahan
-      Navigator.pushReplacementNamed(context, '/login');
+    if (user != null) {
+      try {
+        await user.updatePassword(newPassword);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password berhasil diubah")),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      } on FirebaseAuthException catch (e) {
+        String errorMessage = "Terjadi kesalahan";
+        if (e.code == 'weak-password') {
+          errorMessage = 'Password terlalu lemah.';
+        } else if (e.code == 'requires-recent-login') {
+          errorMessage =
+              'Sesi Anda telah berakhir. Silakan login kembali untuk mengubah password.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User tidak ditemukan")),
+        const SnackBar(content: Text("User tidak ditemukan, silahkan login kembali")),
       );
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

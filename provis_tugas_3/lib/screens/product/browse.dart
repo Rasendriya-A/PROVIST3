@@ -309,7 +309,7 @@ class _BrowseState extends State<Browse> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Rp ${product.price}',
+                            ' ${product.price}',
                             style: AppTextStyles.button.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,

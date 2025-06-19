@@ -39,6 +39,9 @@ class ProductService {
               price: "Rp${priceValue.toInt()} per hari",
               imageUrl: data['imageUrl'] ?? '',
               description: data['description'] as String?,
+              stock: (data['stock'] is num) ? (data['stock'] as num).toInt() : 0,
+              averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
+              reviewCount: (data['reviewCount'] as num?)?.toInt() ?? 0,
             );
           }).toList();
 

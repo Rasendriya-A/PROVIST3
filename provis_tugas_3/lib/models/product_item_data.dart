@@ -4,6 +4,9 @@ class ProductItemData {
   final String price;
   final String imageUrl;
   final String? description;
+  final int stock;
+  final double averageRating;
+  final int reviewCount;
 
   ProductItemData({
     required this.id,
@@ -11,5 +14,8 @@ class ProductItemData {
     required this.price,
     required this.imageUrl,
     this.description,
+    required this.stock,
+    this.averageRating = 0.0,
+    this.reviewCount = 0,
   });
 }

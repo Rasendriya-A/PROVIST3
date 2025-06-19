@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provis_tugas_3/models/cart_item_model.dart';
+import 'package:provis_tugas_3/services/product_service.dart';
 import 'package:provis_tugas_3/services/transaction_service.dart';
 import 'package:provis_tugas_3/services/cart_service.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
@@ -17,6 +18,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final TransactionService _transactionService = TransactionService();
   final CartService _cartService = CartService();
+  final ProductService _productService = ProductService();
 
   bool _isProcessing = false;
   bool _showQRIS = false;
@@ -48,7 +50,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
 
     try {
-      // Create transaction
+      // 1. Check stock availability
+      for (final item in args.selectedItems) {
+        final productDoc = await _productService.getProductById(item.productId!);
+        if (!productDoc.exists) {
+          throw Exception('Produk ${item.name} tidak ditemukan.');
+        }
+        final productData = productDoc.data() as Map<String, dynamic>;
+        final stock = (productData['stock'] as num?)?.toInt() ?? 0;
+
+        if (stock < item.quantity) {
+          throw Exception(
+              'Stok untuk ${item.name} tidak mencukupi. Sisa stok: $stock.');
+        }
+      }
+
+      // 2. Create transaction
       final transactionId = await _transactionService.createTransaction(
         items: args.selectedItems,
         startDate: args.startDate,
@@ -58,14 +75,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
       );
 
       if (transactionId != null) {
-        // Clear cart for selected items
+        // 3. Clear cart for selected items
         for (final item in args.selectedItems) {
           if (item.productId != null) {
             await _cartService.removeFromCart(item.productId!);
           }
         }
 
-        // Navigate to transaction page
+        // 4. Navigate to transaction page
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const TransactionPage()),
@@ -79,12 +96,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         );
       } else {
-        throw Exception('Failed to create transaction');
+        throw Exception('Gagal membuat transaksi');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal membuat transaksi: $e'),
+          content: Text('Gagal: $e'),
           backgroundColor: Colors.red,
         ),
       );

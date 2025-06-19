@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provis_tugas_3/models/review_model.dart';
 import 'package:provis_tugas_3/services/cart_service.dart';
 import 'package:provis_tugas_3/services/product_service.dart';
+import 'package:provis_tugas_3/services/review_service.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:provis_tugas_3/screens/auth/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provis_tugas_3/widgets/review_card.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class DetailFixed extends StatefulWidget {
   final String productId;
@@ -19,6 +22,7 @@ class DetailFixed extends StatefulWidget {
 class _DetailFixedState extends State<DetailFixed> {
   final ProductService _productService = ProductService();
   final CartService _cartService = CartService();
+  final ReviewService _reviewService = ReviewService();
   int quantity = 1;
 
   // Method to show login dialog
@@ -59,6 +63,7 @@ class _DetailFixedState extends State<DetailFixed> {
   // Fungsi untuk menampilkan bottom sheet "Tambah ke Keranjang"
   void _showCartBottomSheet(Map<String, dynamic> productData) {
     setState(() => quantity = 1); // Reset kuantitas
+    final int stock = (productData['stock'] as num?)?.toInt() ?? 0;
 
     showModalBottomSheet(
       context: context,
@@ -144,95 +149,86 @@ class _DetailFixedState extends State<DetailFixed> {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: () => setModalState(() {
-                              if (quantity > 1) quantity--;
-                            }),
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () {
+                              if (quantity > 1) {
+                                setModalState(() => quantity--);
+                              }
+                            },
                           ),
-                          Text(
-                            quantity.toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                          Text('$quantity', style: const TextStyle(fontSize: 18)),
                           IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () => setModalState(() => quantity++),
+                            icon: const Icon(Icons.add_circle_outline),
+                            onPressed: () {
+                              if (quantity < stock) {
+                                setModalState(() => quantity++);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Jumlah melebihi stok yang tersedia.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
                     ],
                   ),
                   const Spacer(),
-                  StreamBuilder<User?>(
-                    stream: FirebaseAuth.instance.authStateChanges(),
-                    builder: (context, authSnapshot) {
-                      final user = authSnapshot.data;
-                      
-                      return ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          minimumSize: const Size(double.infinity, 50),
-                        ),                        onPressed: () async {
-                          // Check if user is authenticated using stream data
-                          if (user == null) {
-                            Navigator.pop(context); // Close bottom sheet first
-                            _showLoginDialog();
-                            return;
-                          }
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: stock > 0
+                          ? () async {
+                              final User? user = FirebaseAuth.instance.currentUser;
+                              if (user == null) {
+                                _showLoginDialog();
+                                return;
+                              }
 
-                          // Add to cart
-                          double price = 0.0;
-                          try {
-                            final priceValue = productData['price'];
-                            if (priceValue is String) {
-                              String cleanPrice = priceValue.replaceAll(
-                                RegExp(r'[^0-9]'),
-                                '',
-                              );
-                              price = double.parse(cleanPrice);
-                            } else if (priceValue is num) {
-                              price = priceValue.toDouble();
-                            } else {
-                              price = 700000;
+                              try {
+                                final price = (productData['price'] as num?)?.toDouble() ?? 0.0;
+                                await _cartService.addToCart(
+                                  productId: widget.productId,
+                                  productName: productData['name'] ?? 'No Name',
+                                  imageUrl: productData['imageUrl'] ?? '',
+                                  price: price,
+                                  quantity: quantity,
+                                );
+                                if (mounted) {
+                                  Navigator.pop(context); // Close bottom sheet
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          '✅ Berhasil ditambahkan ke keranjang!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('❌ Gagal menambahkan: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
                             }
-                          } catch (e) {
-                            price = 700000;                          }
-
-                          print('Adding product: ${productData['name']} with price: $price');
-
-                          final success = await _cartService.addToCart(
-                            productId: widget.productId,
-                            productName: productData['name'],
-                            imageUrl: productData['imageUrl'],
-                            price: price,
-                            quantity: quantity,
-                          );
-
-                          Navigator.pop(context);
-
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${productData['name']} berhasil ditambahkan ke keranjang',
-                                ),
-                                backgroundColor: AppColors.primary,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Gagal menambahkan ke keranjang'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text(
-                          'Masukkan Ke Keranjang',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      );
-                    },
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Masukkan Ke Keranjang',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -269,29 +265,34 @@ class _DetailFixedState extends State<DetailFixed> {
           }
           var productData = snapshot.data!.data() as Map<String, dynamic>;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.network(
-                  productData['imageUrl'],
-                  width: double.infinity,
-                  height: 250,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(
-                    height: 250,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.error),
+          return CustomScrollView(
+            slivers: [
+              // Bagian Gambar Produk
+              SliverToBoxAdapter(
+                child: Hero(
+                  tag: 'product-image-${widget.productId}',
+                  child: Container(
+                    height: 300,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(productData['imageUrl'] ?? ''),
+                        fit: BoxFit.cover,
+                        onError: (e, s) => print('Image load error: $e'),
+                      ),
+                    ),
                   ),
                 ),
-                Padding(
+              ),
+
+              // Bagian Detail Produk
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        productData['name'],
+                        productData['name'] ?? 'Nama Produk Tidak Tersedia',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -302,23 +303,19 @@ class _DetailFixedState extends State<DetailFixed> {
                         "Rp${productData['price']} per hari",
                         style: const TextStyle(
                           fontSize: 20,
-                          color: Colors.deepOrange,
                           fontWeight: FontWeight.bold,
+                          color: Colors.deepOrange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Stok: ${(productData['stock'] as num?)?.toInt() ?? 0}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
-                        onPressed: () => _showCartBottomSheet(productData),
-                        child: const Text(
-                          'Masukkan Ke Keranjang',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       const Text(
                         'Deskripsi',
                         style: TextStyle(
@@ -328,83 +325,72 @@ class _DetailFixedState extends State<DetailFixed> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        productData['description'] ?? 'Tidak ada deskripsi.',
-                        style: const TextStyle(fontSize: 16),
+                        productData['description'] ??
+                            'Deskripsi tidak tersedia.',
+                        style: const TextStyle(fontSize: 16, height: 1.5),
                       ),
                       const SizedBox(height: 24),
+                      const Divider(thickness: 1),
+                      const SizedBox(height: 16),
                       const Text(
-                        'Ulasan',
+                        'Ulasan & Rating',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      FutureBuilder<QuerySnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('reviews')
-                            .where('productId', isEqualTo: widget.productId)
-                            .get(),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          RatingBarIndicator(
+                            rating: (productData['averageRating'] as num?)
+                                    ?.toDouble() ??
+                                0.0,
+                            itemBuilder: (context, index) => const Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                            itemCount: 5,
+                            itemSize: 24.0,
+                            direction: Axis.horizontal,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${(productData['averageRating'] as num?)?.toDouble().toStringAsFixed(1) ?? '0.0'} (${productData['reviewCount'] ?? 0} ulasan)',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      StreamBuilder<List<Review>>(
+                        stream:
+                            _reviewService.getReviewsForProduct(widget.productId),
                         builder: (context, reviewSnapshot) {
                           if (reviewSnapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
+                                child: CircularProgressIndicator());
+                          }
+                          if (reviewSnapshot.hasError) {
+                            print(
+                                "Error loading reviews: ${reviewSnapshot.error}");
+                            return const Center(
+                                child: Text('Gagal memuat ulasan.'));
                           }
                           if (!reviewSnapshot.hasData ||
-                              reviewSnapshot.data!.docs.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text("Belum ada ulasan untuk produk ini."),
-                            );
+                              reviewSnapshot.data!.isEmpty) {
+                            return const Center(
+                                child: Text(
+                                    'Belum ada ulasan untuk produk ini.'));
                           }
-                          final reviews = reviewSnapshot.data!.docs;
+                          final reviews = reviewSnapshot.data!;
                           return ListView.builder(
-                            itemCount: reviews.length,
+                            padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
+                            itemCount: reviews.length,
                             itemBuilder: (context, index) {
-                              final review = ReviewModel.fromFirestore(
-                                reviews[index],
-                              );
-                              return Card(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        review.userName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: List.generate(
-                                          5,
-                                          (starIndex) => Icon(
-                                            starIndex < review.rating
-                                                ? Icons.star
-                                                : Icons.star_border,
-                                            color: Colors.amber,
-                                            size: 16,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(review.comment),
-                                    ],
-                                  ),
-                                ),
-                              );
+                              return ReviewCard(review: reviews[index]);
                             },
                           );
                         },
@@ -412,7 +398,42 @@ class _DetailFixedState extends State<DetailFixed> {
                     ],
                   ),
                 ),
-              ],
+              ),
+            ],
+          );
+        },
+      ),
+      bottomNavigationBar: FutureBuilder<DocumentSnapshot>(
+        future: _productService.getProductById(widget.productId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox(
+                height: 80, child: Center(child: CircularProgressIndicator()));
+          }
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const SizedBox.shrink();
+          }
+          var productData = snapshot.data!.data() as Map<String, dynamic>;
+          return Container(
+            padding: EdgeInsets.fromLTRB(
+                16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
+            color: Colors.white,
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _showCartBottomSheet(productData),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Tambah Ke Keranjang',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
             ),
           );
         },

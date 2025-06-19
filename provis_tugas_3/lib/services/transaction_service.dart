@@ -21,7 +21,7 @@ class TransactionService {
   }) async {
     try {
       print('Creating transaction...');
-      
+
       if (currentUserId == null) {
         print('Error: User not logged in');
         throw Exception('User not logged in');
@@ -29,7 +29,7 @@ class TransactionService {
 
       print('Current user ID: $currentUserId');
       print('Items count: ${items.length}');
-      
+
       // Convert cart items to transaction items
       final transactionItems =
           items
@@ -67,6 +67,9 @@ class TransactionService {
           .collection('transactions')
           .add(transaction.toMap());
 
+      // Update product stock
+      await updateProductStock(transactionItems);
+
       print('Transaction saved successfully with ID: ${docRef.id}');
       return docRef.id;
     } catch (e) {
@@ -75,20 +78,41 @@ class TransactionService {
     }
   }
 
+  // Update product stock
+  Future<void> updateProductStock(List<model.TransactionItem> items) async {
+    try {
+      print('Updating product stock...');
+      final batch = _firestore.batch();
+
+      for (final item in items) {
+        final productRef = _firestore.collection('products').doc(item.productId);
+        batch.update(productRef, {'stock': FieldValue.increment(-item.quantity)});
+      }
+
+      await batch.commit();
+      print('Product stock updated successfully.');
+    } catch (e) {
+      print('Error updating product stock: $e');
+      // Handle or rethrow the error as needed
+    }
+  }
+
   // Get user transactions
   Stream<List<model.Transaction>> getUserTransactions() {
     if (currentUserId == null) {
       return Stream.value([]);
-    }    return _firestore
+    }
+    return _firestore
         .collection('transactions')
         .where('userId', isEqualTo: currentUserId)
         .snapshots()
         .map((snapshot) {
           // Sort in memory instead of Firestore to avoid index requirement
-          final transactions = snapshot.docs.map((doc) {
-            return model.Transaction.fromMap(doc.id, doc.data());
-          }).toList();
-          
+          final transactions =
+              snapshot.docs.map((doc) {
+                return model.Transaction.fromMap(doc.id, doc.data());
+              }).toList();
+
           // Sort by createdAt in descending order
           transactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
           return transactions;
@@ -96,7 +120,7 @@ class TransactionService {
   }
 
   // Update transaction status
-  Future<bool> updateTransactionStatus(
+  Future<void> updateTransactionStatus(
     String transactionId,
     model.TransactionStatus status,
   ) async {
@@ -104,10 +128,8 @@ class TransactionService {
       await _firestore.collection('transactions').doc(transactionId).update({
         'status': status.index,
       });
-      return true;
     } catch (e) {
       print('Error updating transaction status: $e');
-      return false;
     }
   }
 

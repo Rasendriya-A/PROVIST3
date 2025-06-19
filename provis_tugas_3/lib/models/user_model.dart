@@ -1,37 +1,30 @@
 class UserModel {
-  final int id;
+  final String uid; // Changed from id to uid to match Firebase Auth
   final String name;
   final String email;
-  String password; // Tetap menggunakan 'String', tanpa 'final'
+  final String? photoURL; // Added for user image
 
   UserModel({
-    required this.id,
+    required this.uid,
     required this.name,
     required this.email,
-    required this.password,
+    this.photoURL,
   });
 
-  // Method untuk memperbarui password
-  void updatePassword(String newPassword) {
-    password = newPassword;
-  }
-
-  // Method konversi ke JSON
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromMap(Map<String, dynamic> data, String documentId) {
     return UserModel(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      password: json['password'],
+      uid: documentId,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      photoURL: data['photoURL'],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'email': email,
-      'password': password,
+      'photoURL': photoURL,
     };
   }
 }

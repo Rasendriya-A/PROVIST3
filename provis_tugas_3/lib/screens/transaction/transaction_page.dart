@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provis_tugas_3/models/transaction.dart' as model;
+import 'package:provis_tugas_3/models/user_model.dart';
 import 'package:provis_tugas_3/services/transaction_service.dart';
 import 'package:provis_tugas_3/screens/auth/login_page.dart';
 import 'package:provis_tugas_3/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provis_tugas_3/services/user_service.dart';
+import 'package:provis_tugas_3/widgets/review_dialog.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -15,6 +18,21 @@ class TransactionPage extends StatefulWidget {
 
 class _TransactionPageState extends State<TransactionPage> {
   final TransactionService _transactionService = TransactionService();
+  final UserService _userService = UserService();
+  UserModel? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  void _loadCurrentUser() async {
+    final user = await _userService.getCurrentUser();
+    setState(() {
+      _currentUser = user;
+    });
+  }
 
   String formatNumber(double number) {
     final formatter = NumberFormat.currency(
@@ -106,13 +124,8 @@ class _TransactionPageState extends State<TransactionPage> {
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'Belum ada transaksi',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Transaksi Anda akan muncul di sini',
-                        style: TextStyle(color: Colors.grey),
+                        'Tidak ada transaksi ditemukan.',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -120,11 +133,24 @@ class _TransactionPageState extends State<TransactionPage> {
               }
 
               return ListView.builder(
-                padding: const EdgeInsets.all(16),
                 itemCount: transactions.length,
                 itemBuilder: (context, index) {
                   final transaction = transactions[index];
-                  return _buildTransactionCard(transaction);
+                  return TransactionCard(
+                    transaction: transaction,
+                    formatNumber: formatNumber,
+                    onReview: () {
+                      if (_currentUser != null) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => ReviewDialog(
+                            transaction: transaction,
+                            user: _currentUser!,
+                          ),
+                        );
+                      }
+                    },
+                  );
                 },
               );
             },
@@ -133,285 +159,122 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
     );
   }
+}
 
-  Widget _buildTransactionCard(model.Transaction transaction) {
+class TransactionCard extends StatelessWidget {
+  final model.Transaction transaction;
+  final String Function(double) formatNumber;
+  final VoidCallback onReview;
+
+  const TransactionCard({
+    super.key,
+    required this.transaction,
+    required this.formatNumber,
+    required this.onReview,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with status
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'ID: ${transaction.id.substring(0, 8)}...',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  'Order ID: ${transaction.id.substring(0, 8)}...',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: transaction.statusColor,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    transaction.statusText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Date and duration info
-            Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                const SizedBox(width: 8),
                 Text(
                   DateFormat('dd MMM yyyy').format(transaction.createdAt),
                   style: const TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(width: 16),
-                const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                const SizedBox(width: 8),
-                Text(
-                  '${transaction.duration} hari',
-                  style: const TextStyle(color: Colors.grey),
-                ),
               ],
             ),
-            const SizedBox(height: 12),
-
-            // Rental period
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Tanggal Mulai', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                        Text(
-                          DateFormat('dd/MM/yyyy').format(transaction.startDate),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+            const Divider(height: 20),
+            ...transaction.items.map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          item.imageUrl,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
                         ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.arrow_forward, color: Colors.grey),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text('Tanggal Selesai', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                        Text(
-                          DateFormat('dd/MM/yyyy').format(transaction.endDate),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Items
-            const Text(
-              'Items:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ...transaction.items.take(3).map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Image.network(
-                      item.imageUrl,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 20),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.name,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text('${item.quantity} x ${formatNumber(item.price)}'),
+                          ],
                         ),
-                        Text(
-                          'Qty: ${item.quantity} | Rp${formatNumber(item.price)}/hari',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )),
-            if (transaction.items.length > 3)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  '+${transaction.items.length - 3} item lainnya',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
-                ),
-              ),
-
-            const Divider(),
-
-            // Total and payment method
+                )),
+            const Divider(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Total Pembayaran', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    Text(
-                      'Rp${formatNumber(transaction.totalAmount)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+                const Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  'Rp ${formatNumber(transaction.totalAmount)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.qr_code, size: 16),
-                      const SizedBox(width: 4),
-                      Text(transaction.paymentMethod),
-                    ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Status'),
+                Text(
+                  transaction.status.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _getStatusColor(transaction.status),
                   ),
                 ),
               ],
             ),
-
-            // Action buttons based on status
-            if (transaction.status == model.TransactionStatus.completed && !transaction.isRated) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => _showRatingDialog(transaction),
-                  icon: const Icon(Icons.star, color: Colors.white),
-                  label: const Text('Beri Rating', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+            if (transaction.status == model.TransactionStatus.completed) // Corrected status
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: onReview,
+                    child: const Text('Leave a Review'),
                   ),
                 ),
               ),
-            ],
           ],
         ),
       ),
     );
   }
 
-  void _showRatingDialog(model.Transaction transaction) {
-    int rating = 5;
-    final commentController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Beri Rating'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Bagaimana pengalaman rental Anda?'),
-            const SizedBox(height: 16),
-            StatefulBuilder(
-              builder: (context, setState) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) => GestureDetector(
-                  onTap: () => setState(() => rating = index + 1),
-                  child: Icon(
-                    Icons.star,
-                    color: index < rating ? Colors.amber : Colors.grey,
-                    size: 32,
-                  ),
-                )),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: commentController,
-              decoration: const InputDecoration(
-                hintText: 'Tulis komentar (opsional)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final success = await _transactionService.rateTransaction(
-                transaction.id,
-                rating,
-                commentController.text,
-              );
-              
-              Navigator.pop(context);
-              
-              if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Rating berhasil diberikan!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Gagal memberikan rating')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Kirim', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+  Color _getStatusColor(model.TransactionStatus status) {
+    switch (status) {
+      case model.TransactionStatus.waitingApproval:
+        return Colors.orange;
+      case model.TransactionStatus.approved:
+        return Colors.blue;
+      case model.TransactionStatus.inProgress:
+        return Colors.green;
+      case model.TransactionStatus.completed:
+        return Colors.purple;
+      case model.TransactionStatus.damaged:
+        return Colors.red;
+    }
   }
 }

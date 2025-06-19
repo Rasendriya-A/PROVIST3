@@ -11,8 +11,6 @@ import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
 import 'package:provis_tugas_3/screens/product/browse.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/services/product_service.dart';
-import 'package:provis_tugas_3/services/product_setup.dart';
-import 'package:provis_tugas_3/widgets/auth_debug_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,8 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ProductSetup _productSetup = ProductSetup();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,9 +29,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // DEBUG: Auth Status Widget
-            const AuthDebugWidget(),
-            const SizedBox(height: 8),
             // Header
             Container(
               color: AppColors.primary,
@@ -76,41 +69,6 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(AppConstants.appName, style: AppTextStyles.appTitle),
-                // Temporary setup button
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    try {
-                      await _productSetup.addSampleProducts();
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('✅ Produk berhasil ditambahkan!'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('❌ Error: $e'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.add_box, size: 16),
-                  label: const Text('Setup'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 16),

@@ -28,10 +28,7 @@ class AppRoutes {
     login: (context) => const LoginPage(),
     register: (context) => const RegisterPage(),
     forgetpass: (context) => const ForgetPassPage(),
-    changepassword: (context) {
-      final email = ModalRoute.of(context)?.settings.arguments as String;
-      return ChangePasswordPage(email: email);
-    },
+    changepassword: (context) => const ChangePasswordPage(),
     profile: (context) => const ProfilePage(),
     browse: (context) => const Browse(),
     // detail: (context) => const Detail(),
