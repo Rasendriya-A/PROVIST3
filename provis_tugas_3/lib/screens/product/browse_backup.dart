@@ -21,36 +21,20 @@ class _BrowseState extends State<Browse> {
   final CartService _cartService = CartService();
   List<ProductItemData> _products = [];
   List<ProductItemData> _filteredProducts = [];
-  List<String> _categories = [];
   bool _isLoading = true;
   String _searchQuery = '';
-  String _selectedCategory = 'All';
-  String _selectedSort = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _loadProducts();
   }
 
-  Future<void> _loadInitialData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
+  Future<void> _loadProducts() async {
     try {
-      // Load categories and products simultaneously
-      final futures = await Future.wait([
-        _productService.getCategories(),
-        _productService.getProducts(),
-      ]);
-
-      final categories = futures[0] as List<String>;
-      final products = futures[1] as List<ProductItemData>;
-
+      final products = await _productService.getProducts();
       setState(() {
-        _categories = categories;
         _products = products;
         _filteredProducts = products;
         _isLoading = false;
@@ -62,183 +46,26 @@ class _BrowseState extends State<Browse> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error loading data: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error loading products: $e')));
       }
     }
   }
 
-  Future<void> _applyFilters() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Get filtered products from service
-      final products = await _productService.getProducts(
-        category: _selectedCategory,
-        sortBy: _selectedSort,
-      );
-
-      setState(() {
-        _products = products;
-        _filterProductsBySearch(); // Apply search filter on top of category/sort filters
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error applying filters: $e')));
-      }
-    }
-  }
-
-  void _filterProductsBySearch() {
-    if (_searchQuery.isEmpty) {
-      _filteredProducts = _products;
-    } else {
-      _filteredProducts =
-          _products.where((product) {
-            final String searchTerm = _searchQuery.toLowerCase();
-            return product.name.toLowerCase().contains(searchTerm) ||
-                (product.description?.toLowerCase().contains(searchTerm) ??
-                    false);
-          }).toList();
-    }
-  }
-
-  void _onSearchChanged(String query) {
+  void _filterProducts(String query) {
     setState(() {
       _searchQuery = query;
-      _filterProductsBySearch();
+      if (query.isEmpty) {
+        _filteredProducts = _products;
+      } else {
+        _filteredProducts =
+            _products.where((product) {
+              final String searchTerm = query.toLowerCase();
+              return product.name.toLowerCase().contains(searchTerm) ||
+                  (product.description?.toLowerCase().contains(searchTerm) ??
+                      false);
+            }).toList();
+      }
     });
-  }
-
-  void _onCategoryChanged(String? category) {
-    if (category != null && category != _selectedCategory) {
-      setState(() {
-        _selectedCategory = category;
-      });
-      _applyFilters();
-    }
-  }
-
-  void _onSortChanged(String? sortBy) {
-    if (sortBy != null && sortBy != _selectedSort) {
-      setState(() {
-        _selectedSort = sortBy;
-      });
-      _applyFilters();
-    }
-  }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Filter & Sort'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Category Filter
-                  const Text(
-                    'Kategori',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    items:
-                        _categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value ?? 'All';
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Sort Filter
-                  const Text(
-                    'Urutkan',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedSort.isEmpty ? null : _selectedSort,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    hint: const Text('Pilih urutan'),
-                    items: const [
-                      DropdownMenuItem(value: '', child: Text('Default')),
-                      DropdownMenuItem(
-                        value: 'harga_tertinggi',
-                        child: Text('Harga Tertinggi'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'harga_terendah',
-                        child: Text('Harga Terendah'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedSort = value ?? '';
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Batal'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _applyFilters();
-                },
-                child: const Text('Terapkan'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void _clearFilters() {
-    setState(() {
-      _selectedCategory = 'All';
-      _selectedSort = '';
-      _searchQuery = '';
-      _searchController.clear();
-    });
-    _applyFilters();
   }
 
   Future<void> _addToCart(ProductItemData product) async {
@@ -315,11 +142,6 @@ class _BrowseState extends State<Browse> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune, color: Colors.white),
-            onPressed: _showFilterDialog,
-            tooltip: 'Filter & Sort',
-          ),
-          IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
               Navigator.push(
@@ -337,20 +159,10 @@ class _BrowseState extends State<Browse> {
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
-              onChanged: _onSearchChanged,
+              onChanged: _filterProducts,
               decoration: InputDecoration(
                 hintText: 'Cari produk...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon:
-                    _searchQuery.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearchChanged('');
-                          },
-                        )
-                        : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -359,36 +171,6 @@ class _BrowseState extends State<Browse> {
               ),
             ),
           ),
-
-          // Active Filters Display
-          if (_selectedCategory != 'All' || _selectedSort.isNotEmpty)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: Wrap(
-                spacing: 8,
-                children: [
-                  if (_selectedCategory != 'All')
-                    Chip(
-                      label: Text('Kategori: $_selectedCategory'),
-                      onDeleted: () => _onCategoryChanged('All'),
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                    ),
-                  if (_selectedSort.isNotEmpty)
-                    Chip(
-                      label: Text(_getSortLabel(_selectedSort)),
-                      onDeleted: () => _onSortChanged(''),
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                    ),
-                  if (_selectedCategory != 'All' || _selectedSort.isNotEmpty)
-                    ActionChip(
-                      label: const Text('Clear All'),
-                      onPressed: _clearFilters,
-                      backgroundColor: Colors.red.shade50,
-                    ),
-                ],
-              ),
-            ),
 
           // Product Grid
           Expanded(
@@ -417,49 +199,30 @@ class _BrowseState extends State<Browse> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _clearFilters,
-                            child: const Text('Reset Filter'),
-                          ),
                         ],
                       ),
                     )
-                    : RefreshIndicator(
-                      onRefresh: _loadInitialData,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.75,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                          itemCount: _filteredProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = _filteredProducts[index];
-                            return _buildProductCard(product);
-                          },
-                        ),
+                    : Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                        itemCount: _filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = _filteredProducts[index];
+                          return _buildProductCard(product);
+                        },
                       ),
                     ),
           ),
         ],
       ),
     );
-  }
-
-  String _getSortLabel(String sortBy) {
-    switch (sortBy) {
-      case 'harga_tertinggi':
-        return 'Harga Tertinggi';
-      case 'harga_terendah':
-        return 'Harga Terendah';
-      default:
-        return 'Default';
-    }
   }
 
   Widget _buildProductCard(ProductItemData product) {
@@ -529,8 +292,7 @@ class _BrowseState extends State<Browse> {
                       style: AppTextStyles.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    ),
-                    // Product Description
+                    ), // Product Description
                     if (product.description != null)
                       Text(
                         product.description!,
@@ -547,7 +309,7 @@ class _BrowseState extends State<Browse> {
                       children: [
                         Expanded(
                           child: Text(
-                            product.price,
+                            'Rp ${product.price}',
                             style: AppTextStyles.button.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,

@@ -49,10 +49,7 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(builder: (context) => const Browse()),
                       );
                     },
-                    child: Icon(
-                      Icons.search,
-                      color: AppColors.textLight,
-                    ),
+                    child: Icon(Icons.search, color: AppColors.textLight),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -72,7 +69,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // App Title
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,7 +104,10 @@ class _HomePageState extends State<HomePage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                   ),
                 ),
               ],
@@ -138,7 +138,8 @@ class _HomePageState extends State<HomePage> {
             Text("Kategori", style: AppTextStyles.header),
             const SizedBox(height: 12),
             SizedBox(
-              height: 120,              child: ListView(
+              height: 120,
+              child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: const [
                   CategoryItem(
@@ -180,8 +181,9 @@ class _HomePageState extends State<HomePage> {
                   child: Text("Lihat Semua", style: AppTextStyles.link),
                 ),
               ],
-            ),            const SizedBox(height: 12),
-            
+            ),
+            const SizedBox(height: 12),
+
             // Product Grid
             FutureBuilder<List<ProductItemData>>(
               future: ProductService().getProducts(),
@@ -222,22 +224,13 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: AppColors.textSecondary,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Browse",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Browse"),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt),
             label: "Transaksi",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
           if (index == 1) {
@@ -280,10 +273,7 @@ class CarouselItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        image: DecorationImage(
-          image: AssetImage(imagePath),
-          fit: BoxFit.cover,
-        ),
+        image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -291,10 +281,7 @@ class CarouselItem extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Colors.black.withValues(alpha: 0.7),
-            ],
+            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
           ),
         ),
         padding: const EdgeInsets.all(16),
@@ -313,10 +300,7 @@ class CarouselItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
