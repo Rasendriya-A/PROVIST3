@@ -10,7 +10,8 @@ import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Browse extends StatefulWidget {
-  const Browse({super.key});
+  final String? initialCategory;
+  const Browse({Key? key, this.initialCategory}) : super(key: key);
 
   @override
   State<Browse> createState() => _BrowseState();
@@ -40,7 +41,6 @@ class _BrowseState extends State<Browse> {
     });
 
     try {
-      // Load categories and products simultaneously
       final futures = await Future.wait([
         _productService.getCategories(),
         _productService.getProducts(),
@@ -49,12 +49,30 @@ class _BrowseState extends State<Browse> {
       final categories = futures[0] as List<String>;
       final products = futures[1] as List<ProductItemData>;
 
+      // Cek initialCategory dari widget
+      String selectedCategory = 'All';
+      if (widget.initialCategory != null &&
+          categories.contains(widget.initialCategory)) {
+        selectedCategory = widget.initialCategory!;
+      }
+
       setState(() {
         _categories = categories;
         _products = products;
-        _filteredProducts = products;
-        _isLoading = false;
+        _selectedCategory = selectedCategory;
+        _searchQuery = '';
+        _searchController.clear();
       });
+
+      // Jika initialCategory bukan 'All', langsung apply filter
+      if (selectedCategory != 'All') {
+        await _applyFilters();
+      } else {
+        setState(() {
+          _filteredProducts = products;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -345,7 +363,7 @@ class _BrowseState extends State<Browse> {
               controller: _searchController,
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
-                hintText: 'Cari produk...',
+                hintText: 'Cari...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon:
                     _searchQuery.isNotEmpty
@@ -485,9 +503,8 @@ class _BrowseState extends State<Browse> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
+            // Product Image (Expanded agar gambar selalu proporsional)
             Expanded(
-              flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
@@ -519,63 +536,79 @@ class _BrowseState extends State<Browse> {
                         ),
               ),
             ),
-
             // Product Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Product Name
-                    Text(
-                      product.name,
-                      style: AppTextStyles.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    // Product Description
-                    if (product.description != null)
-                      Text(
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Name
+                  Text(
+                    product.name,
+                    style: AppTextStyles.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Product Description
+                  if (product.description != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0),
+                      child: Text(
                         product.description!,
                         style: AppTextStyles.small.copyWith(
                           color: Colors.grey[600],
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  const SizedBox(height: 6),
+                  // Price and Add Button
+                  // ...existing code...
+                  // Price and Add Button (vertical)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.price,
+                        style: AppTextStyles.button.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-
-                    // Price and Add Button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            product.price,
-                            style: AppTextStyles.button.copyWith(
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            onPressed: () => _addToCart(product),
+                            icon: const Icon(
+                              Icons.add_shopping_cart,
                               color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
+                              size: 18,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            tooltip: 'Tambah ke keranjang',
+                            padding: const EdgeInsets.all(
+                              2,
+                            ), // padding lebih kecil
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ), // ukuran minimum lebih kecil
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => _addToCart(product),
-                          icon: Icon(
-                            Icons.add_shopping_cart,
-                            color: AppColors.primary,
-                            size: 10,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  // ...existing code...
+                ],
               ),
             ),
           ],

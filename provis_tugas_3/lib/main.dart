@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xFF4B6543),
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF4B6543)),
-        fontFamily: 'Inter',
+        // fontFamily: 'Inter',
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4B6543),

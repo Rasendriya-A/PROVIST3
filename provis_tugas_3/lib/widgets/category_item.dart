@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provis_tugas_3/utils/app_text_styles.dart';
 
 class CategoryItem extends StatelessWidget {
   final String label;
@@ -32,7 +33,7 @@ class CategoryItem extends StatelessWidget {
                     ),
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12)),
+          Text(label, style: AppTextStyles.categoryLabel),
         ],
       ),
     );

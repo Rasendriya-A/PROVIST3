@@ -24,10 +24,17 @@ class AppTextStyles {
   );
 
   static const label = TextStyle(
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter',
     fontWeight: FontWeight.w500,
     color: AppColors.textDark,
+  );
+
+  static const categoryLabel = TextStyle(
+    fontSize: 12,
+    fontFamily: 'Inter',
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
   );
 
   static const small = TextStyle(
@@ -55,7 +62,7 @@ class AppTextStyles {
   );
 
   static const header = TextStyle(
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: 'Inter',
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,
