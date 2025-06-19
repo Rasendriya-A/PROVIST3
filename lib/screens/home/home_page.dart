@@ -1,0 +1,274 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provis_tugas_3/models/product_item_data.dart';
+import 'package:provis_tugas_3/screens/transaction/transaction_page.dart';
+import 'package:provis_tugas_3/utils/app_colors.dart';
+import 'package:provis_tugas_3/utils/app_text_styles.dart';
+import 'package:provis_tugas_3/utils/constants.dart';
+import 'package:provis_tugas_3/widgets/recommended_item.dart';
+import 'package:provis_tugas_3/widgets/category_item.dart';
+import 'package:provis_tugas_3/screens/profile/pf_user/profile_screen.dart';
+import 'package:provis_tugas_3/screens/product/browse.dart';
+import 'package:provis_tugas_3/screens/cart/cart_page.dart';
+import 'package:provis_tugas_3/services/product_service.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              color: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Browse()),
+                      );
+                    },
+                    child: Icon(Icons.search, color: AppColors.textLight),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RentalCartPage(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: AppColors.textLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // App Title
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppConstants.appName, style: AppTextStyles.appTitle),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Carousel Section
+            SizedBox(
+              height: 180,
+              child: PageView(
+                children: const [
+                  CarouselItem(
+                    title: "Jelajahi Alam Bebas",
+                    subtitle: "Temukan petualangan terbaik",
+                    imagePath: "assets/images/carousel/camp1.jpg",
+                  ),
+                  CarouselItem(
+                    title: "Peralatan Berkualitas",
+                    subtitle: "Sewa equipment terpercaya",
+                    imagePath: "assets/images/carousel/camp2.jpg",
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Categories Section
+            Text("Kategori", style: AppTextStyles.header),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 120,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: const [
+                  CategoryItem(
+                    label: "Tenda",
+                    imageUrl: "assets/images/category/tenda.jpg",
+                  ),
+                  SizedBox(width: 12),
+                  CategoryItem(
+                    label: "Tas",
+                    imageUrl: "assets/images/category/tas.jpg",
+                  ),
+                  SizedBox(width: 12),
+                  CategoryItem(
+                    label: "Sleeping Bag",
+                    imageUrl: "assets/images/category/sleeping_bag.jpg",
+                  ),
+                  SizedBox(width: 12),
+                  CategoryItem(
+                    label: "Paket Camping",
+                    imageUrl: "assets/images/category/paket.jpg",
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Recommended Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Rekomendasi", style: AppTextStyles.header),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Browse()),
+                    );
+                  },
+                  child: Text("Lihat Semua", style: AppTextStyles.link),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Product Grid
+            FutureBuilder<List<ProductItemData>>(
+              future: ProductService().getProducts(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Tidak ada produk tersedia'));
+                }
+
+                final products = snapshot.data!;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: products.length > 4 ? 4 : products.length,
+                  itemBuilder: (context, index) {
+                    return RecommendedItem(product: products[index]);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.background,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Browse"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt),
+            label: "Transaksi",
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Browse()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const TransactionPage()),
+            );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class CarouselItem extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String imagePath;
+
+  const CarouselItem({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String formatRupiah(double amount) {
+  final formatter = NumberFormat('#,###', 'id_ID');
+  return 'Rp ${formatter.format(amount)}';
+}

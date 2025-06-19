@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "387126214676",
+    "project_id": "yukkemah-cc40f",
+    "storage_bucket": "yukkemah-cc40f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387126214676:android:973796cd5f37c6a42e2701",
+        "android_client_info": {
+          "package_name": "com.example.provis_tugas_3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfYV2vF6vg2NQH5rjv2-hsPoMLUKEkgjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
