@@ -48,9 +48,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'profileImage': 'assets/images/default_profile.png',
             'createdAt': FieldValue.serverTimestamp(),
           };
-          
-          await _firestore.collection('users').doc(user.uid).set(defaultProfile);
-          
+
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .set(defaultProfile);
+
           setState(() {
             userProfile = defaultProfile;
             isLoading = false;
@@ -72,21 +75,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _logout() async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Apakah Anda yakin ingin logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Logout'),
+            content: const Text('Apakah Anda yakin ingin logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
 
     if (confirm == true) {
@@ -179,7 +186,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -201,7 +210,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // User is logged in
           return isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _buildProfileContent();        },
+              : _buildProfileContent();
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.background,
@@ -210,23 +220,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: 3, // Profile tab is selected (index 3)
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Browse",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Browse"),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt),
             label: "Transaksi",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],        onTap: (index) {
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
+        onTap: (index) {
           if (index == 0) {
             Navigator.push(
               context,
@@ -251,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildProfileContent() {
     final user = _auth.currentUser!;
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -270,25 +272,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[300],
-                  child: userProfile?['profileImage'] != null
-                      ? ClipOval(
-                          child: Image.asset(
-                            'assets/images/default_profile.png',
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.grey[600],
+                  child:
+                      userProfile?['profileImage'] != null
+                          ? ClipOval(
+                            child: Image.asset(
+                              'assets/images/default_profile.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (c, e, s) => Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.grey[600],
+                                  ),
                             ),
+                          )
+                          : Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.grey[600],
                           ),
-                        )
-                      : Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Colors.grey[600],
-                        ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -301,10 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   user.email ?? '-',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),
@@ -321,16 +322,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Informasi Pribadi',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow(Icons.person, 'Nama', userProfile?['name'] ?? '-'),
+                  _buildInfoRow(
+                    Icons.person,
+                    'Nama',
+                    userProfile?['name'] ?? '-',
+                  ),
                   _buildInfoRow(Icons.email, 'Email', user.email ?? '-'),
-                  _buildInfoRow(Icons.phone, 'Telepon', userProfile?['phone'] ?? '-'),
-                  _buildInfoRow(Icons.location_on, 'Alamat', userProfile?['address'] ?? '-'),
+                  _buildInfoRow(
+                    Icons.phone,
+                    'Telepon',
+                    userProfile?['phone'] ?? '-',
+                  ),
+                  _buildInfoRow(
+                    Icons.location_on,
+                    'Alamat',
+                    userProfile?['address'] ?? '-',
+                  ),
                 ],
               ),
             ),
@@ -348,16 +358,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   () => _showEditProfileDialog(),
                 ),
                 const Divider(height: 1),
-                _buildMenuTile(
-                  Icons.receipt_long,
-                  'Riwayat Transaksi',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const TransactionPage()),
-                    );
-                  },
-                ),
+                _buildMenuTile(Icons.receipt_long, 'Riwayat Transaksi', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionPage(),
+                    ),
+                  );
+                }),
                 const Divider(height: 1),
                 _buildMenuTile(
                   Icons.logout,
@@ -386,10 +394,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 Text(
                   value,
@@ -406,7 +411,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuTile(IconData icon, String title, VoidCallback onTap, {Color? textColor}) {
+  Widget _buildMenuTile(
+    IconData icon,
+    String title,
+    VoidCallback onTap, {
+    Color? textColor,
+  }) {
     return ListTile(
       leading: Icon(icon, color: textColor ?? Colors.grey[700]),
       title: Text(
@@ -422,80 +432,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showEditProfileDialog() {
-    final nameController = TextEditingController(text: userProfile?['name'] ?? '');
-    final phoneController = TextEditingController(text: userProfile?['phone'] ?? '');
-    final addressController = TextEditingController(text: userProfile?['address'] ?? '');
+    final nameController = TextEditingController(
+      text: userProfile?['name'] ?? '',
+    );
+    final phoneController = TextEditingController(
+      text: userProfile?['phone'] ?? '',
+    );
+    final addressController = TextEditingController(
+      text: userProfile?['address'] ?? '',
+    );
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Profile'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama',
-                  border: OutlineInputBorder(),
-                ),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Edit Profile'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Telepon',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Alamat',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Telepon',
-                  border: OutlineInputBorder(),
-                ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Alamat',
-                  border: OutlineInputBorder(),
+              ElevatedButton(
+                onPressed: () async {
+                  final user = _auth.currentUser;
+                  if (user != null) {
+                    try {
+                      await _firestore
+                          .collection('users')
+                          .doc(user.uid)
+                          .update({
+                            'name':
+                                nameController.text.trim().isEmpty
+                                    ? '-'
+                                    : nameController.text.trim(),
+                            'phone':
+                                phoneController.text.trim().isEmpty
+                                    ? '-'
+                                    : phoneController.text.trim(),
+                            'address':
+                                addressController.text.trim().isEmpty
+                                    ? '-'
+                                    : addressController.text.trim(),
+                            'updatedAt': FieldValue.serverTimestamp(),
+                          });
+
+                      await _loadUserProfile(); // Reload profile data
+
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile berhasil diupdate!'),
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Gagal update profile: $e')),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
                 ),
-                maxLines: 3,
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final user = _auth.currentUser;
-              if (user != null) {
-                try {
-                  await _firestore.collection('users').doc(user.uid).update({
-                    'name': nameController.text.trim().isEmpty ? '-' : nameController.text.trim(),
-                    'phone': phoneController.text.trim().isEmpty ? '-' : phoneController.text.trim(),
-                    'address': addressController.text.trim().isEmpty ? '-' : addressController.text.trim(),
-                    'updatedAt': FieldValue.serverTimestamp(),
-                  });
-
-                  await _loadUserProfile(); // Reload profile data
-                  
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile berhasil diupdate!')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal update profile: $e')),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
   }
 }

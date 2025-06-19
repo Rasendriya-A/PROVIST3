@@ -44,9 +44,9 @@ class _BrowseState extends State<Browse> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading products: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading products: $e')));
       }
     }
   }
@@ -55,11 +55,16 @@ class _BrowseState extends State<Browse> {
     setState(() {
       _searchQuery = query;
       if (query.isEmpty) {
-        _filteredProducts = _products;      } else {
-        _filteredProducts = _products.where((product) {
-          return product.name.toLowerCase().contains(query.toLowerCase()) ||
-                 (product.description?.toLowerCase().contains(query.toLowerCase()) ?? false);
-        }).toList();
+        _filteredProducts = _products;
+      } else {
+        _filteredProducts =
+            _products.where((product) {
+              return product.name.toLowerCase().contains(query.toLowerCase()) ||
+                  (product.description?.toLowerCase().contains(
+                        query.toLowerCase(),
+                      ) ??
+                      false);
+            }).toList();
       }
     });
   }
@@ -69,7 +74,8 @@ class _BrowseState extends State<Browse> {
     if (user == null) {
       _showLoginDialog();
       return;
-    }    try {
+    }
+    try {
       await _cartService.addToCart(
         productId: product.id,
         productName: product.name,
@@ -100,26 +106,27 @@ class _BrowseState extends State<Browse> {
   void _showLoginDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Login Required'),
-        content: const Text('Please login to add items to cart'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Login Required'),
+            content: const Text('Please login to add items to cart'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                child: const Text('Login'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Text('Login'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -129,7 +136,10 @@ class _BrowseState extends State<Browse> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Browse Products', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Browse Products',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
@@ -164,44 +174,46 @@ class _BrowseState extends State<Browse> {
 
           // Products Grid
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredProducts.isEmpty
+            child:
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _filteredProducts.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Colors.grey[400],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? 'No products available'
+                                : 'No products found for "$_searchQuery"',
+                            style: AppTextStyles.label.copyWith(
+                              color: Colors.grey[600],
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isEmpty
-                                  ? 'No products available'
-                                  : 'No products found for "$_searchQuery"',
-                              style: AppTextStyles.label.copyWith(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : GridView.builder(
-                        padding: const EdgeInsets.all(16),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        itemCount: _filteredProducts.length,
-                        itemBuilder: (context, index) {
-                          final product = _filteredProducts[index];
-                          return _buildProductCard(product);
-                        },
+                          ),
+                        ],
                       ),
+                    )
+                    : GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.7,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                      itemCount: _filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = _filteredProducts[index];
+                        return _buildProductCard(product);
+                      },
+                    ),
           ),
         ],
       ),
@@ -238,25 +250,34 @@ class _BrowseState extends State<Browse> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: product.imageUrl.isNotEmpty
-                    ? Image.network(
-                        product.imageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: double.infinity,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                      ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+                child:
+                    product.imageUrl.isNotEmpty
+                        ? Image.network(
+                          product.imageUrl,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              color: Colors.grey[300],
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        )
+                        : Container(
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                          ),
+                        ),
               ),
             ),
 
@@ -274,7 +295,8 @@ class _BrowseState extends State<Browse> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),                    Text(
+                    const SizedBox(height: 4),
+                    Text(
                       product.description ?? '',
                       style: AppTextStyles.small,
                       maxLines: 2,

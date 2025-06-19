@@ -44,25 +44,30 @@ class _BrowseState extends State<Browse> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading products: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading products: $e')));
       }
     }
-  }  void _filterProducts(String query) {
+  }
+
+  void _filterProducts(String query) {
     setState(() {
       _searchQuery = query;
       if (query.isEmpty) {
         _filteredProducts = _products;
       } else {
-        _filteredProducts = _products.where((product) {
-          final String searchTerm = query.toLowerCase();
-          return product.name.toLowerCase().contains(searchTerm) ||
-                 (product.description?.toLowerCase().contains(searchTerm) ?? false);
-        }).toList();
+        _filteredProducts =
+            _products.where((product) {
+              final String searchTerm = query.toLowerCase();
+              return product.name.toLowerCase().contains(searchTerm) ||
+                  (product.description?.toLowerCase().contains(searchTerm) ??
+                      false);
+            }).toList();
       }
     });
   }
+
   Future<void> _addToCart(ProductItemData product) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -89,9 +94,9 @@ class _BrowseState extends State<Browse> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding to cart: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding to cart: $e')));
       }
     }
   }
@@ -99,26 +104,29 @@ class _BrowseState extends State<Browse> {
   void _showLoginDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Login Required'),
-        content: const Text('Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Login Required'),
+            content: const Text(
+              'Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                child: const Text('Login'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Text('Login'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -128,7 +136,10 @@ class _BrowseState extends State<Browse> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Browse Products', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Browse Products',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
@@ -163,45 +174,51 @@ class _BrowseState extends State<Browse> {
 
           // Product Grid
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredProducts.isEmpty
+            child:
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _filteredProducts.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _searchQuery.isEmpty ? Icons.inventory : Icons.search_off,
-                              size: 64,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _searchQuery.isEmpty
+                                ? Icons.inventory
+                                : Icons.search_off,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? 'Tidak ada produk tersedia'
+                                : 'Tidak ada produk yang cocok dengan pencarian "$_searchQuery"',
+                            style: AppTextStyles.label.copyWith(
                               color: Colors.grey,
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isEmpty
-                                  ? 'Tidak ada produk tersedia'
-                                  : 'Tidak ada produk yang cocok dengan pencarian "$_searchQuery"',
-                              style: AppTextStyles.label.copyWith(color: Colors.grey),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
+                            textAlign: TextAlign.center,
                           ),
-                          itemCount: _filteredProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = _filteredProducts[index];
-                            return _buildProductCard(product);
-                          },
-                        ),
+                        ],
                       ),
+                    )
+                    : Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                        itemCount: _filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = _filteredProducts[index];
+                          return _buildProductCard(product);
+                        },
+                      ),
+                    ),
           ),
         ],
       ),
@@ -229,25 +246,34 @@ class _BrowseState extends State<Browse> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: product.imageUrl.isNotEmpty
-                    ? Image.network(
-                        product.imageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: double.infinity,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                      ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+                child:
+                    product.imageUrl.isNotEmpty
+                        ? Image.network(
+                          product.imageUrl,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              color: Colors.grey[300],
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        )
+                        : Container(
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                          ),
+                        ),
               ),
             ),
 
@@ -266,11 +292,13 @@ class _BrowseState extends State<Browse> {
                       style: AppTextStyles.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    ),                    // Product Description
+                    ), // Product Description
                     if (product.description != null)
                       Text(
                         product.description!,
-                        style: AppTextStyles.small.copyWith(color: Colors.grey[600]),
+                        style: AppTextStyles.small.copyWith(
+                          color: Colors.grey[600],
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
