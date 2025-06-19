@@ -14,7 +14,6 @@ import 'package:provis_tugas_3/screens/product/browse.dart';
 import 'package:provis_tugas_3/screens/cart/cart_page.dart';
 import 'package:provis_tugas_3/services/product_service.dart';
 import 'package:provis_tugas_3/services/product_setup.dart';
-import 'package:provis_tugas_3/widgets/auth_debug_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -227,9 +226,6 @@ class _HomePageState extends State<HomePage> {
       // 1. Ubah struktur body menjadi Column untuk memisahkan header dan konten
       body: Column(
         children: [
-          // DEBUG: Auth Status Widget
-          const AuthDebugWidget(),
-          const SizedBox(height: 8),
           // 2. Letakkan Header di sini, di luar SingleChildScrollView.
           // Header ini tidak akan bisa di-scroll dan tidak akan memiliki padding.
           Container(
@@ -409,9 +405,8 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) => Browse(
-                                      initialCategory: "Paket Camping",
-                                    ),
+                                    (context) =>
+                                        Browse(initialCategory: "Paket"),
                               ),
                             );
                           },

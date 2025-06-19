@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ProductItem extends StatelessWidget {
   final String name;
-  final String price;
+  final double price;
   final String imageUrl;
 
   const ProductItem({
@@ -49,7 +49,7 @@ class ProductItem extends StatelessWidget {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           Text(
-            price,
+            price as String,
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,

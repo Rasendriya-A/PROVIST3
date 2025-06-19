@@ -9,7 +9,7 @@ class CartService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Get current user ID
-  String? get currentUserId => _auth.currentUser?.uid;  // Add item to cart
+  String? get currentUserId => _auth.currentUser?.uid; // Add item to cart
   Future<bool> addToCart({
     required String productId,
     required String productName,
@@ -42,7 +42,11 @@ class CartService {
             .doc(currentUserId)
             .collection('items')
             .doc(productId)
-            .update({'quantity': currentQuantity + quantity});
+            .update({
+              'quantity': currentQuantity + quantity,
+              // tambahkan baris berikut:
+              'price': price,
+            });
         print('Updated quantity for existing item');
       } else {
         // Add new item to cart
@@ -90,6 +94,9 @@ class CartService {
             double price = 0.0;
             try {
               final priceValue = data['price'];
+              print(
+                'DEBUG: priceValue = $priceValue (${priceValue.runtimeType})',
+              );
               if (priceValue is String) {
                 String cleanPrice = priceValue.replaceAll(
                   RegExp(r'[^0-9]'),
@@ -192,7 +199,8 @@ class CartService {
     final selectedItems = items.where((item) => item.isSelected);
     final duration = calculateRentalDuration(startDate, endDate);
 
-    if (duration <= 0) return 0.0;    return selectedItems.fold(0.0, (total, item) {
+    if (duration <= 0) return 0.0;
+    return selectedItems.fold(0.0, (total, item) {
       return total + (item.price * item.quantity * duration);
     });
   }
@@ -222,6 +230,7 @@ class CartService {
       decimalDigits: 0,
     );
     return formatter.format(number);
-  }  // Check if user is authenticated
+  } // Check if user is authenticated
+
   bool get isUserAuthenticated => _auth.currentUser != null;
 }

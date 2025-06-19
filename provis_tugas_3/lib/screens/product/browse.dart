@@ -260,6 +260,7 @@ class _BrowseState extends State<Browse> {
   }
 
   Future<void> _addToCart(ProductItemData product) async {
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       _showLoginDialog();
@@ -271,7 +272,7 @@ class _BrowseState extends State<Browse> {
         productId: product.id,
         productName: product.name,
         imageUrl: product.imageUrl,
-        price: double.tryParse(product.price) ?? 0.0,
+        price: double.tryParse(product.price.toString()) ?? 0.0,
         quantity: 1,
       );
 

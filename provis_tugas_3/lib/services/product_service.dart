@@ -22,7 +22,7 @@ class ProductService {
     return ProductItemData(
       id: doc.id,
       name: data['name'] ?? 'No Name',
-      price: "Rp${priceValue.toInt()} per hari",
+      price: "${priceValue.toInt()}",
       imageUrl: data['imageUrl'] ?? '',
       description: data['description'] as String?,
       // Anda bisa tambahkan properti lain di sini jika model Anda memilikinya
